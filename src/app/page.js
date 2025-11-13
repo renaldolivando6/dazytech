@@ -156,6 +156,18 @@ if (typeof window !== 'undefined') {
 const DoggyModel = memo(function DoggyModel({ url }) {
   const { scene } = useGLTF(url);
   const meshRef = useRef();
+  const [isMobile, setIsMobile] = useState(false);
+  
+  useEffect(() => {
+    setIsMobile(window.innerWidth < 768);
+    
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
   
   useFrame(() => {
     if (meshRef.current) {
@@ -181,11 +193,13 @@ const DoggyModel = memo(function DoggyModel({ url }) {
     });
   }, [scene]);
 
+  const scale = isMobile ? 2.5 : 4; // 2.5 untuk mobile, 4 untuk desktop
+
   return (
     <primitive 
       ref={meshRef}
       object={scene} 
-      scale={[4, 4, 4]}
+      scale={[scale, scale, scale]}
       position={[0, 0, 0]}
     />
   );
@@ -413,7 +427,7 @@ export default function DazytechModern() {
                   </button>
                 </motion.a>
                 <motion.a 
-                  href="https://wa.me/6281310228482"
+                  href="https://wa.me/6285171571591"
                   target="_blank"
                   rel="noopener noreferrer"
                   whileHover={{ scale: 1.05 }}
@@ -804,7 +818,7 @@ export default function DazytechModern() {
                   
                   <div className="space-y-6 mb-10">
                     <motion.a 
-                      href="https://wa.me/6281310228482"
+                      href="https://wa.me/6285171571591"
                       target="_blank"
                       rel="noopener noreferrer"
                       whileHover={{ x: 8, scale: 1.02 }}
@@ -820,7 +834,7 @@ export default function DazytechModern() {
                         </motion.div>
                         <div>
                           <div className="text-sm text-gray-300">WhatsApp (Preferred)</div>
-                          <div className="font-semibold">+62 813 1022 8482</div>
+                          <div className="font-semibold">+62 851 7157 1591</div>
                         </div>
                       </div>
                       <ChevronRight className="w-5 h-5 text-gray-400 group-hover:text-white transition-colors" />
@@ -841,7 +855,7 @@ export default function DazytechModern() {
                         </motion.div>
                         <div>
                           <div className="text-sm text-gray-300">Email</div>
-                          <div className="font-semibold">dazytechsolutions@gmail.com</div>
+                          <div className="font-semibold break-all">dazytechsolutions@gmail.com</div>
                         </div>
                       </div>
                       <ChevronRight className="w-5 h-5 text-gray-400 group-hover:text-white transition-colors" />
@@ -862,7 +876,7 @@ export default function DazytechModern() {
                   </div>
 
                   <motion.a
-                    href="https://wa.me/6281310228482"
+                    href="https://wa.me/6285171571591"
                     target="_blank"
                     rel="noopener noreferrer"
                     whileHover={{ scale: 1.05 }}
@@ -986,14 +1000,14 @@ export default function DazytechModern() {
               <ul className="space-y-3.5">
                 <li>
                   <motion.a 
-                    href="https://wa.me/6281310228482" 
+                    href="https://wa.me/6285171571591" 
                     target="_blank" 
                     rel="noopener noreferrer"
                     className="flex items-start gap-3 text-sm text-gray-400 hover:text-amber-400 transition-colors"
                     whileHover={{ x: 5 }}
                   >
                     <Phone className="w-4 h-4 text-amber-600 flex-shrink-0 mt-0.5" />
-                    <span>+62 813 1022 8482</span>
+                    <span>+62 851 7157 1591</span>
                   </motion.a>
                 </li>
                 <li>
