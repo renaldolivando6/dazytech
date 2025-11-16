@@ -19,6 +19,7 @@ import {
   CheckCircle2,
   ChevronRight,
   ChevronDown,
+  ChevronLeft,
   Mail,
   Phone,
   MapPin
@@ -69,22 +70,25 @@ const SERVICES = [
 
 const WORKS = [
   {
-    title: "Agricultural Operations Platform",
-    category: "Enterprise Solution",
-    description: "Transformed 1000+ hectares plantation operations with real-time tracking, automated payroll system, and comprehensive reporting for multi-division management.",
-    image: "/work-1.png"
+    title: "Warehouse & Distribution Management",
+    category: "Logistics System",
+    description: "Comprehensive logistics platform with real-time inventory tracking, smart route optimization, and automated delivery coordination for multi-warehouse operations.",
+    image: "/work-1.png",
+    highlights: ["Real-time Tracking", "Route Optimization", "Multi-warehouse Support"]
   },
   {
-    title: "Logistics Command Center",
-    category: "Supply Chain System",
-    description: "Unified logistics platform processing 100K+ monthly shipments with AI-powered route optimization and real-time tracking capabilities.",
-    image: "/work-2.png"
+    title: "Sugarcane Management System",
+    category: "Agricultural ERP",
+    description: "End-to-end plantation management system built for Sungai Budi Group, featuring daily work planning (RKH), work reporting (LKH), GPS tracking, and financial modules for 1000+ hectares operations.",
+    image: "/work-2.png",
+    highlights: ["Daily Work Planning", "GPS Tracking", "Financial Integration"]
   },
   {
-    title: "Corporate Finance Suite",
-    category: "Financial Platform",
-    description: "Automated financial operations for multi-national corporation, processing millions monthly with real-time reporting and compliance.",
-    image: "/work-3.png"
+    title: "Sales Performance Dashboard",
+    category: "Sales Management",
+    description: "Advanced analytics dashboard displaying total orders, revenue metrics, latest transactions, and real-time sales performance indicators for data-driven decision making.",
+    image: "/work-3.png",
+    highlights: ["Revenue Analytics", "Order Tracking", "Performance Metrics"]
   }
 ];
 
@@ -193,7 +197,7 @@ const DoggyModel = memo(function DoggyModel({ url }) {
     });
   }, [scene]);
 
-  const scale = isMobile ? 2.5 : 4; // 2.5 untuk mobile, 4 untuk desktop
+  const scale = isMobile ? 2.5 : 4;
 
   return (
     <primitive 
@@ -307,6 +311,27 @@ function FloatingCard({ children, delay = 0 }) {
 
 export default function DazytechModern() {
   const [activeFaq, setActiveFaq] = useState(null);
+  const [currentSlide, setCurrentSlide] = useState(0);
+
+  const nextSlide = () => {
+    setCurrentSlide((prev) => (prev + 1) % WORKS.length);
+  };
+
+  const prevSlide = () => {
+    setCurrentSlide((prev) => (prev - 1 + WORKS.length) % WORKS.length);
+  };
+
+  const goToSlide = (index) => {
+    setCurrentSlide(index);
+  };
+
+  // Auto slide every 5 seconds
+  useEffect(() => {
+    const timer = setInterval(() => {
+      nextSlide();
+    }, 5000);
+    return () => clearInterval(timer);
+  }, [currentSlide]);
 
   return (
     <div className="min-h-screen bg-white text-gray-900 overflow-x-hidden">
@@ -488,19 +513,11 @@ export default function DazytechModern() {
         </div>
       </section>
 
-      {/* Works Section */}
+      {/* Works Section - Modern Slider */}
       <section id="works" className="py-24 px-6 bg-gradient-to-b from-stone-50 to-white">
         <div className="max-w-7xl mx-auto">
           <ScrollSection>
             <div className="text-center max-w-3xl mx-auto mb-20">
-              <motion.div
-                initial={{ scale: 0 }}
-                whileInView={{ scale: 1 }}
-                viewport={{ once: true }}
-                transition={{ type: "spring", stiffness: 200 }}
-                className="inline-block mb-4"
-              >
-              </motion.div>
               <h2 className="text-5xl font-bold mb-6 text-gray-900">Latest Works</h2>
               <p className="text-xl text-gray-600">
                 Real solutions for real businesses. See how we&apos;ve helped companies transform their operations.
@@ -508,73 +525,137 @@ export default function DazytechModern() {
             </div>
           </ScrollSection>
 
-          <div className="space-y-32">
-            {WORKS.map((work, index) => (
-              <ScrollSection key={index} delay={index * 0.15}>
-                <div className={`grid grid-cols-1 lg:grid-cols-2 gap-16 items-center ${index % 2 === 1 ? 'lg:flex-row-reverse' : ''}`}>
-                  <motion.div 
-                    whileHover={{ scale: 1.03, rotateY: index % 2 === 0 ? 5 : -5 }}
-                    transition={{ type: "spring", stiffness: 300 }}
-                    className={`${index % 2 === 1 ? 'lg:order-2' : ''}`}
-                  >
-                    <FloatingCard delay={index * 0.5}>
-                      <div className="rounded-3xl overflow-hidden shadow-2xl border-2 relative group" style={{ borderColor: '#e8d5c7' }}>
-                        <motion.div 
-                          className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity z-10"
-                          initial={false}
-                        />
+          {/* Slider Container */}
+          <div className="relative max-w-6xl mx-auto">
+            {/* Navigation Buttons */}
+            <motion.button
+              onClick={prevSlide}
+              whileHover={{ scale: 1.1, x: -5 }}
+              whileTap={{ scale: 0.9 }}
+              className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 lg:-translate-x-16 z-20 w-12 h-12 rounded-full bg-white shadow-xl border-2 flex items-center justify-center hover:bg-stone-50 transition-all"
+              style={{ borderColor: '#e8d5c7' }}
+            >
+              <ChevronLeft className="w-6 h-6" style={{ color: '#8B4513' }} />
+            </motion.button>
+
+            <motion.button
+              onClick={nextSlide}
+              whileHover={{ scale: 1.1, x: 5 }}
+              whileTap={{ scale: 0.9 }}
+              className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 lg:translate-x-16 z-20 w-12 h-12 rounded-full bg-white shadow-xl border-2 flex items-center justify-center hover:bg-stone-50 transition-all"
+              style={{ borderColor: '#e8d5c7' }}
+            >
+              <ChevronRight className="w-6 h-6" style={{ color: '#8B4513' }} />
+            </motion.button>
+
+            {/* Main Slider */}
+            <div className="relative overflow-hidden rounded-3xl">
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={currentSlide}
+                  initial={{ opacity: 0, x: 300 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -300 }}
+                  transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+                  className="bg-white rounded-3xl p-8 lg:p-12 border-2 shadow-2xl"
+                  style={{ borderColor: '#e8d5c7' }}
+                >
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+                    {/* Image Side */}
+                    <motion.div
+                      initial={{ scale: 0.9, opacity: 0 }}
+                      animate={{ scale: 1, opacity: 1 }}
+                      transition={{ delay: 0.2 }}
+                      className="relative group order-2 lg:order-1"
+                    >
+                      <div className="rounded-2xl overflow-hidden shadow-xl border-2 relative bg-stone-100" style={{ borderColor: '#e8d5c7' }}>
                         <motion.div
-                          whileHover={{ scale: 1.05 }}
-                          transition={{ duration: 0.6 }}
+                          whileHover={{ scale: 1.02 }}
+                          transition={{ duration: 0.4 }}
+                          className="relative w-full"
+                          style={{ paddingBottom: '80%' }}
                         >
                           <Image 
-                            src={work.image} 
-                            alt={work.title}
-                            width={800}
-                            height={600}
-                            className="w-full h-auto"
-                            loading={index === 0 ? "eager" : "lazy"}
+                            src={WORKS[currentSlide].image} 
+                            alt={WORKS[currentSlide].title}
+                            fill
+                            className="object-contain p-2"
+                            priority={currentSlide === 0}
                           />
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
                         </motion.div>
                       </div>
-                    </FloatingCard>
-                  </motion.div>
-                  
-                  <div className={`${index % 2 === 1 ? 'lg:order-1' : ''}`}>
+                    </motion.div>
+                    
+                    {/* Content Side */}
                     <motion.div
-                      initial={{ opacity: 0, x: index % 2 === 0 ? -50 : 50 }}
-                      whileInView={{ opacity: 1, x: 0 }}
-                      viewport={{ once: true }}
-                      transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+                      initial={{ opacity: 0, y: 30 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.3 }}
+                      className="order-1 lg:order-2"
                     >
                       <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-semibold mb-6" style={{ 
                         background: 'linear-gradient(135deg, rgba(139,69,19,0.1), rgba(139,69,19,0.15))',
                         color: '#8B4513'
                       }}>
                         <Sparkles className="w-3 h-3" />
-                        {work.category}
+                        {WORKS[currentSlide].category}
                       </div>
-                      <h3 className="text-4xl font-bold mb-6 text-gray-900">{work.title}</h3>
-                      <p className="text-gray-600 text-lg leading-relaxed mb-8">{work.description}</p>
                       
-                      <motion.button 
-                        whileHover={{ x: 10 }}
-                        className="group flex items-center gap-2 text-sm font-semibold"
-                        style={{ color: '#8B4513' }}
-                      >
-                        Explore Case Study
-                        <motion.div
-                          animate={{ x: [0, 5, 0] }}
-                          transition={{ duration: 1.5, repeat: Infinity }}
-                        >
-                          <ChevronRight className="w-4 h-4" />
-                        </motion.div>
-                      </motion.button>
+                      <h3 className="text-3xl lg:text-4xl font-bold mb-6 text-gray-900">
+                        {WORKS[currentSlide].title}
+                      </h3>
+                      
+                      <p className="text-gray-600 text-lg leading-relaxed mb-8">
+                        {WORKS[currentSlide].description}
+                      </p>
+                      
+                      {/* Highlights */}
+                      <div className="space-y-3">
+                        {WORKS[currentSlide].highlights.map((highlight, idx) => (
+                          <motion.div
+                            key={idx}
+                            initial={{ opacity: 0, x: -20 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            transition={{ delay: 0.4 + idx * 0.1 }}
+                            className="flex items-center gap-3"
+                          >
+                            <CheckCircle2 className="w-5 h-5 flex-shrink-0" style={{ color: '#8B4513' }} />
+                            <span className="text-gray-700 font-medium">{highlight}</span>
+                          </motion.div>
+                        ))}
+                      </div>
                     </motion.div>
                   </div>
-                </div>
-              </ScrollSection>
-            ))}
+                </motion.div>
+              </AnimatePresence>
+            </div>
+
+            {/* Dots Indicator */}
+            <div className="flex justify-center gap-3 mt-8">
+              {WORKS.map((_, index) => (
+                <motion.button
+                  key={index}
+                  onClick={() => goToSlide(index)}
+                  whileHover={{ scale: 1.2 }}
+                  whileTap={{ scale: 0.9 }}
+                  className="relative"
+                >
+                  <div 
+                    className={`w-3 h-3 rounded-full transition-all ${
+                      currentSlide === index 
+                        ? 'w-8' 
+                        : 'w-3'
+                    }`}
+                    style={{ 
+                      background: currentSlide === index 
+                        ? 'linear-gradient(135deg, #8B4513, #A0522D)' 
+                        : '#d2a993'
+                    }}
+                  />
+                </motion.button>
+              ))}
+            </div>
           </div>
         </div>
       </section>
@@ -765,7 +846,6 @@ export default function DazytechModern() {
                     whileHover={{ rotate: [0, -10, 10, -10, 0] }}
                     transition={{ duration: 0.5 }}
                   >
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img 
                       src={tech.icon} 
                       alt={tech.name} 
