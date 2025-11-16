@@ -163,10 +163,10 @@ const DoggyModel = memo(function DoggyModel({ url }) {
   const [isMobile, setIsMobile] = useState(false);
   
   useEffect(() => {
-    setIsMobile(window.innerWidth < 768);
+    setIsMobile(window.innerWidth < 1024);
     
     const handleResize = () => {
-      setIsMobile(window.innerWidth < 768);
+      setIsMobile(window.innerWidth < 1024);
     };
     
     window.addEventListener('resize', handleResize);
@@ -197,7 +197,7 @@ const DoggyModel = memo(function DoggyModel({ url }) {
     });
   }, [scene]);
 
-  const scale = isMobile ? 2.5 : 4;
+  const scale = isMobile ? 3 : 2.8;
 
   return (
     <primitive 
@@ -398,93 +398,15 @@ export default function DazytechModern() {
       {/* Hero Section */}
       <section id="home" className="pt-32 pb-20 px-6 min-h-screen flex items-center">
         <div className="max-w-7xl mx-auto w-full">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
-            <motion.div
-              initial={{ opacity: 0, x: -50 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
-            >
-              <motion.h1 
-                className="text-5xl lg:text-7xl font-bold mb-8 leading-tight"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.2 }}
-              >
-                Custom software
-                <motion.span 
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.4 }}
-                  className="block mt-2 text-transparent bg-clip-text"
-                  style={{ 
-                    background: 'linear-gradient(135deg, #8B4513, #A0522D)',
-                    WebkitBackgroundClip: 'text'
-                  }}
-                >
-                  for your business
-                </motion.span>
-              </motion.h1>
-              
-              <motion.p 
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.6 }}
-                className="text-xl text-gray-600 mb-10 leading-relaxed"
-              >
-                We build Enterprise Web Applications and ERP Systems that streamline operations, 
-                automate manual processes, and solve your unique business challenges.
-              </motion.p>
-              
-              <motion.div 
-                initial={{ opacity: 0, y: 30 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.8 }}
-                className="flex flex-wrap gap-4"
-              >
-                <motion.a 
-                  href="#works"
-                  whileHover={{ scale: 1.05, boxShadow: "0 20px 40px rgba(139,69,19,0.3)" }}
-                  whileTap={{ scale: 0.95 }}
-                >
-                  <button className="group px-8 py-4 text-white text-sm font-medium rounded-full transition-all shadow-lg hover:shadow-xl flex items-center gap-2" style={{ background: 'linear-gradient(135deg, #8B4513, #654321)' }}>
-                    See Latest Works
-                    <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                  </button>
-                </motion.a>
-                <motion.a 
-                  href="https://wa.me/6285171571591"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                >
-                  <button className="px-8 py-4 text-sm font-medium border-2 rounded-full hover:bg-stone-50 transition-all flex items-center gap-2" style={{ borderColor: '#d2a993', color: '#8B4513' }}>
-                    <Headphones className="w-4 h-4" />
-                    Free Consultation
-                  </button>
-                </motion.a>
-              </motion.div>
-            </motion.div>
-
-            {/* 3D Model */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16 items-center">
+            
+            {/* 3D Model - Show first on mobile, second on desktop */}
             <motion.div
               initial={{ opacity: 0, scale: 0.8, rotateY: -30 }}
               animate={{ opacity: 1, scale: 1, rotateY: 0 }}
               transition={{ duration: 1, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}
-              className="h-[500px] relative canvas-container"
+              className="h-[150px] lg:h-[300px] relative order-1 lg:order-2"
             >
-              <style jsx>{`
-                @media (max-width: 1023px) {
-                  .canvas-container canvas {
-                    pointer-events: none !important;
-                  }
-                }
-                @media (min-width: 1024px) {
-                  .canvas-container canvas {
-                    pointer-events: auto !important;
-                  }
-                }
-              `}</style>
               <motion.div 
                 className="absolute inset-0 rounded-3xl blur-lg opacity-30"
                 animate={{ scale: [1, 1.1, 1] }}
@@ -492,7 +414,7 @@ export default function DazytechModern() {
                 style={{ background: 'linear-gradient(135deg, rgba(139,69,19,0.15), rgba(160,82,45,0.15))' }}
               />
               <Canvas 
-                camera={{ position: [0, 0, 5], fov: 50 }}
+                camera={{ position: [0, 0, 3.5], fov: 50 }}
                 dpr={[1, 2]}
                 gl={{
                   antialias: true,
@@ -517,11 +439,81 @@ export default function DazytechModern() {
                     minPolarAngle={Math.PI / 4}
                     maxPolarAngle={Math.PI / 1.5}
                     autoRotate={false}
-                    enableRotate={typeof window !== 'undefined' && window.innerWidth >= 1024}
+                    enableRotate={true}
                   />
                 </Suspense>
               </Canvas>
             </motion.div>
+
+            {/* Text Content */}
+            <motion.div
+              initial={{ opacity: 0, x: -50 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+              className="order-2 lg:order-1"
+            >
+              <motion.h1 
+                className="text-4xl lg:text-7xl font-bold mb-6 lg:mb-8 leading-tight"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.2 }}
+              >
+                Custom software
+                <motion.span 
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.4 }}
+                  className="block mt-2 text-transparent bg-clip-text"
+                  style={{ 
+                    background: 'linear-gradient(135deg, #8B4513, #A0522D)',
+                    WebkitBackgroundClip: 'text'
+                  }}
+                >
+                  for your business
+                </motion.span>
+              </motion.h1>
+              
+              <motion.p 
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.6 }}
+                className="text-lg lg:text-xl text-gray-600 mb-8 lg:mb-10 leading-relaxed"
+              >
+                We build Enterprise Web Applications and ERP Systems that streamline operations, 
+                automate manual processes, and solve your unique business challenges.
+              </motion.p>
+              
+              <motion.div 
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.8 }}
+                className="flex flex-col sm:flex-row flex-wrap gap-3 lg:gap-4"
+              >
+                <motion.a 
+                  href="#works"
+                  whileHover={{ scale: 1.05, boxShadow: "0 20px 40px rgba(139,69,19,0.3)" }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  <button className="group w-full sm:w-auto px-6 lg:px-8 py-3 lg:py-4 text-white text-sm font-medium rounded-full transition-all shadow-lg hover:shadow-xl flex items-center justify-center gap-2" style={{ background: 'linear-gradient(135deg, #8B4513, #654321)' }}>
+                    See Latest Works
+                    <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                  </button>
+                </motion.a>
+                <motion.a 
+                  href="https://wa.me/6285171571591"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  <button className="w-full sm:w-auto px-6 lg:px-8 py-3 lg:py-4 text-sm font-medium border-2 rounded-full hover:bg-stone-50 transition-all flex items-center justify-center gap-2" style={{ borderColor: '#d2a993', color: '#8B4513' }}>
+                    <Headphones className="w-4 h-4" />
+                    Free Consultation
+                  </button>
+                </motion.a>
+              </motion.div>
+            </motion.div>
+
           </div>
         </div>
       </section>
