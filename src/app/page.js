@@ -471,8 +471,20 @@ export default function DazytechModern() {
               initial={{ opacity: 0, scale: 0.8, rotateY: -30 }}
               animate={{ opacity: 1, scale: 1, rotateY: 0 }}
               transition={{ duration: 1, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}
-              className="h-[500px] relative"
+              className="h-[500px] relative canvas-container"
             >
+              <style jsx>{`
+                @media (max-width: 1023px) {
+                  .canvas-container canvas {
+                    pointer-events: none !important;
+                  }
+                }
+                @media (min-width: 1024px) {
+                  .canvas-container canvas {
+                    pointer-events: auto !important;
+                  }
+                }
+              `}</style>
               <motion.div 
                 className="absolute inset-0 rounded-3xl blur-lg opacity-30"
                 animate={{ scale: [1, 1.1, 1] }}
