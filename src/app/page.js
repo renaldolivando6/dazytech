@@ -505,6 +505,7 @@ export default function DazytechModern() {
                     minPolarAngle={Math.PI / 4}
                     maxPolarAngle={Math.PI / 1.5}
                     autoRotate={false}
+                    enableRotate={typeof window !== 'undefined' && window.innerWidth >= 1024}
                   />
                 </Suspense>
               </Canvas>
