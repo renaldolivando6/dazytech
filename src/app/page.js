@@ -402,10 +402,10 @@ export default function DazytechModern() {
             
             {/* 3D Model - Show first on mobile, second on desktop */}
             <motion.div
-              initial={{ opacity: 0, scale: 0.8, rotateY: -30 }}
+              initial={{ opacity: 0}}
               animate={{ opacity: 1, scale: 1, rotateY: 0 }}
               transition={{ duration: 1, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}
-              className="h-[150px] lg:h-[300px] relative order-1 lg:order-2"
+              className="h-[150px] lg:h-[400px] relative order-1 lg:order-2"
             >
               <motion.div 
                 className="absolute inset-0 rounded-3xl blur-lg opacity-30"
