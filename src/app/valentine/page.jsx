@@ -17,9 +17,11 @@ const DEFAULTS = {
 
 /* ===================== CLOUDINARY UPLOAD ===================== */
 async function uploadToCloudinary(file) {
+  const uid = `val_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
   const fd = new FormData();
   fd.append("file", file);
   fd.append("upload_preset", UPLOAD_PRESET);
+  fd.append("public_id", uid);
   const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`, {
     method: "POST",
     body: fd,
