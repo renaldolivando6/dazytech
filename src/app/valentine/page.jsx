@@ -55,16 +55,13 @@ export default function ValentinePage() {
 
 /* ===================== GENERATOR ===================== */
 function ValentineGenerator() {
-  const [mode, setMode] = useState(null); // null, "simple", "photo", "custom"
-  // Simple + Photo
+  const [mode, setMode] = useState(null);
   const [nama, setNama] = useState("");
   const [simpleImg, setSimpleImg] = useState("");
   const [simpleUploading, setSimpleUploading] = useState(false);
-  // Custom
   const [form, setForm] = useState({ nama: "", img: "", ...DEFAULTS });
   const [customUploading, setCustomUploading] = useState(false);
   const [step, setStep] = useState(0);
-  // Shared
   const [link, setLink] = useState("");
   const [copied, setCopied] = useState(false);
 
@@ -143,7 +140,6 @@ function ValentineGenerator() {
         <h1 style={s.title}>Valentine Card Generator 💝</h1>
         <p style={s.brand}>by <strong>Dazytech</strong></p>
 
-        {/* ===== MODE SELECTION ===== */}
         {mode === null && (
           <div>
             <p style={s.sub}>Pilih cara buat kartu:</p>
@@ -173,7 +169,6 @@ function ValentineGenerator() {
           </div>
         )}
 
-        {/* ===== SIMPLE MODE (nama only) ===== */}
         {mode === "simple" && !link && (
           <div>
             <p style={s.sub}>Masukkan nama yang dituju</p>
@@ -192,13 +187,11 @@ function ValentineGenerator() {
         )}
         {mode === "simple" && link && linkResult}
 
-        {/* ===== PHOTO MODE (nama + foto) ===== */}
         {mode === "photo" && !link && (
           <div>
             <p style={s.sub}>Masukkan nama & upload foto</p>
             <input type="text" placeholder="Nama dia..." value={nama}
               onChange={(e) => setNama(e.target.value)} style={s.input} autoFocus />
-
             <div style={{ marginTop: "14px" }}>
               <label style={s.label}>Foto</label>
               {simpleImg ? (
@@ -214,7 +207,6 @@ function ValentineGenerator() {
                 </label>
               )}
             </div>
-
             <div style={s.nav}>
               <button onClick={() => setMode(null)} style={s.btnBack}>← Kembali</button>
               <button onClick={generateSimple} disabled={!nama.trim() || simpleUploading}
@@ -226,7 +218,6 @@ function ValentineGenerator() {
         )}
         {mode === "photo" && link && linkResult}
 
-        {/* ===== CUSTOM MODE ===== */}
         {mode === "custom" && step < 4 && (
           <div>
             <div style={s.progress}>
@@ -317,10 +308,16 @@ function ValentineGenerator() {
   );
 }
 
-/* ===================== CARD ===================== */
+/* ===================== CARD (FIXED HOOKS ORDER) ===================== */
 function ValentineCard({ config }) {
   const { nama, img, btnCorrect, btnDecoy, resultEmoji, resultTitle, resultMsg, resultChecks, resultFooter } = config;
+
+  // ✅ ALL hooks declared BEFORE any conditional return
   const moneyRef = useRef(null);
+  const esc = useRef(false);
+  const first = useRef(false);
+  const cur = useRef({ x: -9999, y: -9999 });
+  const alive = useRef(true);
   const [done, setDone] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
 
@@ -330,37 +327,8 @@ function ValentineCard({ config }) {
     setIsMobile(check);
   }, []);
 
-  if (isMobile) {
-    return (
-      <div style={{
-        minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center",
-        background: "linear-gradient(135deg,#fbc2eb 0%,#e77a9e 50%,#f472b6 100%)",
-        fontFamily: "'Segoe UI',Tahoma,Geneva,Verdana,sans-serif", padding: "20px",
-      }}>
-        <div style={{
-          textAlign: "center", background: "rgba(255,255,255,0.92)",
-          padding: "50px 35px", borderRadius: "28px",
-          boxShadow: "0 16px 50px rgba(180,60,100,0.25)",
-          maxWidth: "400px", width: "90%",
-        }}>
-          <div style={{ fontSize: "3.5em", marginBottom: "16px" }}>💻</div>
-          <h2 style={{ fontSize: "1.5em", color: "#e11d48", marginBottom: "12px" }}>
-            Buka di PC ya!
-          </h2>
-          <p style={{ fontSize: "1em", color: "#888", lineHeight: 1.6 }}>
-            Valentine card ini cuma bisa dibuka lewat PC / Laptop biar lebih seru~ 😘
-          </p>
-        </div>
-      </div>
-    );
-  }
-  const esc = useRef(false);
-  const first = useRef(false);
-  const cur = useRef({ x: -9999, y: -9999 });
-  const alive = useRef(true);
-
   useEffect(() => {
-    if (done) return;
+    if (isMobile || done) return;
     const btn = moneyRef.current;
     if (!btn) return;
 
@@ -429,9 +397,10 @@ function ValentineCard({ config }) {
       document.removeEventListener("touchstart", onTS);
       btn.removeEventListener("focus", onF);
     };
-  }, [done]);
+  }, [done, isMobile]);
 
   useEffect(() => {
+    if (isMobile) return;
     const c = document.getElementById("hBg");
     if (!c) return;
     const sym = ["♥", "💕", "💗"];
@@ -445,7 +414,7 @@ function ValentineCard({ config }) {
       h.textContent = sym[i % sym.length];
       c.appendChild(h);
     }
-  }, []);
+  }, [isMobile]);
 
   const choose = () => {
     alive.current = false;
@@ -465,6 +434,32 @@ function ValentineCard({ config }) {
       }, i * 90);
     }
   };
+
+  // ✅ Conditional return AFTER all hooks
+  if (isMobile) {
+    return (
+      <div style={{
+        minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center",
+        background: "linear-gradient(135deg,#fbc2eb 0%,#e77a9e 50%,#f472b6 100%)",
+        fontFamily: "'Segoe UI',Tahoma,Geneva,Verdana,sans-serif", padding: "20px",
+      }}>
+        <div style={{
+          textAlign: "center", background: "rgba(255,255,255,0.92)",
+          padding: "50px 35px", borderRadius: "28px",
+          boxShadow: "0 16px 50px rgba(180,60,100,0.25)",
+          maxWidth: "400px", width: "90%",
+        }}>
+          <div style={{ fontSize: "3.5em", marginBottom: "16px" }}>💻</div>
+          <h2 style={{ fontSize: "1.5em", color: "#e11d48", marginBottom: "12px" }}>
+            Buka di PC ya!
+          </h2>
+          <p style={{ fontSize: "1em", color: "#888", lineHeight: 1.6 }}>
+            Valentine card ini cuma bisa dibuka lewat PC / Laptop biar lebih seru~ 😘
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <>
