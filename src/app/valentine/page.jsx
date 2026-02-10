@@ -5,15 +5,36 @@ import { useEffect, useRef, useState } from "react";
 const CLOUD_NAME = "dcz9mai5a";
 const UPLOAD_PRESET = "valentine";
 
-const DEFAULTS = {
-  btnCorrect: "💋 Cium",
-  btnDecoy: "💰 Rp 50.000.000",
-  resultEmoji: "😘",
-  resultTitle: "50 juta mah lewat ya, Yang penting cium",
-  resultMsg: "Sebagai hadiah, kita AYCE bareng yaa! 🥰🥩",
-  resultChecks: "Cium: ✅   AYCE: ✅",
-  resultFooter: "Rp 50 juta? Tetap di rekening aku ya~ 😂💕",
+const TEMPLATES = {
+  gift: {
+    label: "🎁 Valentine Gift",
+    desc: "Pilih hadiah: Cium vs Rp 50 Juta",
+    greeting: "Happy Valentine, {nama}! 💝",
+    subtitle: "Choose Your Gift Sayang~",
+    btnCorrect: "💋 Cium",
+    btnDecoy: "💰 Rp 50.000.000",
+    resultEmoji: "😘",
+    resultTitle: "50 juta mah lewat ya, Yang penting cium",
+    resultMsg: "Sebagai hadiah, kita AYCE bareng yaa! 🥰🥩",
+    resultChecks: "Cium: ✅   AYCE: ✅",
+    resultFooter: "Rp 50 juta? Tetap di rekening aku ya~ 😂💕",
+  },
+  bemine: {
+    label: "💌 Will You Be My Valentine?",
+    desc: "Yes or No (tapi No-nya kabur~)",
+    greeting: "{nama}, Will You Be My Valentine? 💝",
+    subtitle: "",
+    btnCorrect: "Yes",
+    btnDecoy: "No",
+    resultEmoji: "😎",
+    resultTitle: "Udah tau kok jawabannya",
+    resultMsg: "Emang siapa yang bisa nolak aku? Hehe 😏",
+    resultChecks: "",
+    resultFooter: "See you 14 Feb ya cantik~ 💕",
+  },
 };
+
+const DEFAULTS = TEMPLATES.gift;
 
 /* ===================== CLOUDINARY UPLOAD ===================== */
 async function uploadToCloudinary(file) {
@@ -58,6 +79,7 @@ export default function ValentinePage() {
 /* ===================== GENERATOR ===================== */
 function ValentineGenerator() {
   const [mode, setMode] = useState(null);
+  const [tpl, setTpl] = useState(null); // "gift" | "bemine"
   const [nama, setNama] = useState("");
   const [simpleImg, setSimpleImg] = useState("");
   const [simpleUploading, setSimpleUploading] = useState(false);
@@ -81,9 +103,10 @@ function ValentineGenerator() {
   };
 
   const generateSimple = () => {
-    if (!nama.trim()) return;
-    let url = `${window.location.origin}/valentine/?to=${encodeURIComponent(nama.trim())}`;
-    if (mode === "photo" && simpleImg) url += `&img=${encodeURIComponent(simpleImg)}`;
+    if (!nama.trim() || !tpl) return;
+    const t = TEMPLATES[tpl];
+    const cfg = { nama: nama.trim(), img: mode === "photo" && simpleImg ? simpleImg : "", ...t };
+    const url = `${window.location.origin}/valentine/?c=${encodeURIComponent(JSON.stringify(cfg))}`;
     setLink(url);
     setCopied(false);
   };
@@ -116,7 +139,7 @@ function ValentineGenerator() {
   };
 
   const reset = () => {
-    setMode(null); setNama(""); setSimpleImg(""); setLink("");
+    setMode(null); setTpl(null); setNama(""); setSimpleImg(""); setLink("");
     setForm({ nama: "", img: "", ...DEFAULTS }); setStep(0);
   };
 
@@ -171,46 +194,56 @@ function ValentineGenerator() {
           </div>
         )}
 
-        {mode === "simple" && !link && (
+        {(mode === "simple" || mode === "photo") && !link && !tpl && (
           <div>
-            <p style={s.sub}>Masukkan nama yang dituju</p>
-            <input type="text" placeholder="Nama dia..." value={nama}
-              onChange={(e) => setNama(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && nama.trim() && generateSimple()}
-              style={s.input} autoFocus />
+            <p style={s.sub}>Pilih template:</p>
+            <div style={{ display: "flex", flexDirection: "column", gap: "10px", marginTop: "12px" }}>
+              {Object.entries(TEMPLATES).map(([key, t]) => (
+                <button key={key} onClick={() => setTpl(key)} style={s.modeBtn}>
+                  <span style={s.modeBtnIcon}>{key === "gift" ? "🎁" : "💌"}</span>
+                  <span>
+                    <strong style={{ display: "block", marginBottom: "2px" }}>{t.label}</strong>
+                    <span style={{ fontSize: "0.8em", color: "#999" }}>{t.desc}</span>
+                  </span>
+                </button>
+              ))}
+            </div>
             <div style={s.nav}>
               <button onClick={() => setMode(null)} style={s.btnBack}>← Kembali</button>
-              <button onClick={generateSimple} disabled={!nama.trim()}
-                style={{ ...s.btnNext, opacity: nama.trim() ? 1 : 0.5, cursor: nama.trim() ? "pointer" : "not-allowed" }}>
-                Generate Link ✨
-              </button>
             </div>
           </div>
         )}
-        {mode === "simple" && link && linkResult}
 
-        {mode === "photo" && !link && (
+        {(mode === "simple" || mode === "photo") && !link && tpl && (
           <div>
-            <p style={s.sub}>Masukkan nama & upload foto</p>
+            <p style={s.sub}>
+              {mode === "photo" ? "Masukkan nama & upload foto" : "Masukkan nama yang dituju"}
+            </p>
             <input type="text" placeholder="Nama dia..." value={nama}
-              onChange={(e) => setNama(e.target.value)} style={s.input} autoFocus />
-            <div style={{ marginTop: "14px" }}>
-              <label style={s.label}>Foto</label>
-              {simpleImg ? (
-                <div style={s.imgPreviewWrap}>
-                  <img src={simpleImg} style={s.imgPreview} alt="preview" />
-                  <button onClick={() => setSimpleImg("")} style={s.imgRemove}>✕</button>
-                </div>
-              ) : (
-                <label style={s.uploadBox}>
-                  <input type="file" accept="image/*" hidden
-                    onChange={(e) => handleUpload(e.target.files[0], setSimpleImg, setSimpleUploading)} />
-                  {simpleUploading ? "Uploading... ⏳" : "📷 Pilih Foto"}
-                </label>
-              )}
-            </div>
+              onChange={(e) => setNama(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && nama.trim() && !simpleUploading && generateSimple()}
+              style={s.input} autoFocus />
+
+            {mode === "photo" && (
+              <div style={{ marginTop: "14px" }}>
+                <label style={s.label}>Foto</label>
+                {simpleImg ? (
+                  <div style={s.imgPreviewWrap}>
+                    <img src={simpleImg} style={s.imgPreview} alt="preview" />
+                    <button onClick={() => setSimpleImg("")} style={s.imgRemove}>✕</button>
+                  </div>
+                ) : (
+                  <label style={s.uploadBox}>
+                    <input type="file" accept="image/*" hidden
+                      onChange={(e) => handleUpload(e.target.files[0], setSimpleImg, setSimpleUploading)} />
+                    {simpleUploading ? "Uploading... ⏳" : "📷 Pilih Foto"}
+                  </label>
+                )}
+              </div>
+            )}
+
             <div style={s.nav}>
-              <button onClick={() => setMode(null)} style={s.btnBack}>← Kembali</button>
+              <button onClick={() => setTpl(null)} style={s.btnBack}>← Kembali</button>
               <button onClick={generateSimple} disabled={!nama.trim() || simpleUploading}
                 style={{ ...s.btnNext, opacity: nama.trim() && !simpleUploading ? 1 : 0.5, cursor: nama.trim() && !simpleUploading ? "pointer" : "not-allowed" }}>
                 Generate Link ✨
@@ -218,7 +251,8 @@ function ValentineGenerator() {
             </div>
           </div>
         )}
-        {mode === "photo" && link && linkResult}
+
+        {(mode === "simple" || mode === "photo") && link && linkResult}
 
         {mode === "custom" && step < 4 && (
           <div>
@@ -312,7 +346,10 @@ function ValentineGenerator() {
 
 /* ===================== CARD (FIXED HOOKS ORDER) ===================== */
 function ValentineCard({ config }) {
-  const { nama, img, btnCorrect, btnDecoy, resultEmoji, resultTitle, resultMsg, resultChecks, resultFooter } = config;
+  const { nama, img, greeting, subtitle, btnCorrect, btnDecoy, resultEmoji, resultTitle, resultMsg, resultChecks, resultFooter } = config;
+
+  const displayGreeting = (greeting || "Happy Valentine, {nama}! 💝").replace("{nama}", nama);
+  const displaySubtitle = subtitle !== undefined ? subtitle : "Choose Your Gift Sayang~";
 
   // ✅ ALL hooks declared BEFORE any conditional return
   const moneyRef = useRef(null);
@@ -505,11 +542,13 @@ function ValentineCard({ config }) {
                 background: "linear-gradient(135deg,#ec4899,#e11d48)",
                 WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent",
               }}>
-                Happy Valentine, {nama}! 💝
+                {displayGreeting}
               </h1>
-              <p style={{ fontSize: "1.1em", color: "#888", marginBottom: "32px" }}>
-                Choose Your Gift Sayang~
-              </p>
+              {displaySubtitle && (
+                <p style={{ fontSize: "1.1em", color: "#888", marginBottom: "32px" }}>
+                  {displaySubtitle}
+                </p>
+              )}
               <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "16px" }}>
                 <button onClick={choose} style={{
                   padding: "17px 40px", fontSize: "1.2em", fontWeight: "bold",
