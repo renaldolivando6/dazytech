@@ -322,6 +322,38 @@ function ValentineCard({ config }) {
   const { nama, img, btnCorrect, btnDecoy, resultEmoji, resultTitle, resultMsg, resultChecks, resultFooter } = config;
   const moneyRef = useRef(null);
   const [done, setDone] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const check = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
+      || (window.innerWidth <= 768 && "ontouchstart" in window);
+    setIsMobile(check);
+  }, []);
+
+  if (isMobile) {
+    return (
+      <div style={{
+        minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center",
+        background: "linear-gradient(135deg,#fbc2eb 0%,#e77a9e 50%,#f472b6 100%)",
+        fontFamily: "'Segoe UI',Tahoma,Geneva,Verdana,sans-serif", padding: "20px",
+      }}>
+        <div style={{
+          textAlign: "center", background: "rgba(255,255,255,0.92)",
+          padding: "50px 35px", borderRadius: "28px",
+          boxShadow: "0 16px 50px rgba(180,60,100,0.25)",
+          maxWidth: "400px", width: "90%",
+        }}>
+          <div style={{ fontSize: "3.5em", marginBottom: "16px" }}>💻</div>
+          <h2 style={{ fontSize: "1.5em", color: "#e11d48", marginBottom: "12px" }}>
+            Buka di PC ya!
+          </h2>
+          <p style={{ fontSize: "1em", color: "#888", lineHeight: 1.6 }}>
+            Valentine card ini cuma bisa dibuka lewat PC / Laptop biar lebih seru~ 😘
+          </p>
+        </div>
+      </div>
+    );
+  }
   const esc = useRef(false);
   const first = useRef(false);
   const cur = useRef({ x: -9999, y: -9999 });
