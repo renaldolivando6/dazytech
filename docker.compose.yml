@@ -1,0 +1,14 @@
+version: '3.8'
+services:
+  companytech-app: # Nama ini harus sama dengan proxy_pass di Nginx Tebu
+    image: sungaibudiwebdev/dazytech:latest
+    container_name: dazytech-app
+    restart: unless-stopped
+    expose:
+      - "3000" # Cukup expose internal, tidak perlu "3000:3000" ke publik
+    networks:
+      - tebu-network
+
+networks:
+  tebu-network:
+    external: true
