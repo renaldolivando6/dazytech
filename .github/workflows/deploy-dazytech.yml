@@ -1,7 +1,7 @@
 name: Deploy Dazytech (Next.js)
 
 on:
-  workflow_dispatch: {} 
+  workflow_dispatch: {}
 
 jobs:
   build-and-push:
@@ -22,7 +22,7 @@ jobs:
           context: .
           push: true
           tags: sungaibudiwebdev/dazytech:latest
-          # Jika Next.js butuh ENV saat build (misal API URL)
+          no-cache: true
           build-args: |
             NEXT_PUBLIC_API_URL=${{ secrets.NEXT_PUBLIC_API_URL }}
 
@@ -54,11 +54,12 @@ jobs:
               \"cd /opt/apps/rere-apps/dazytech\",
               \"echo $B64_COMPOSE | base64 -d > docker-compose.yml\",
               \"sudo docker compose pull\",
-              \"sudo docker compose up -d --force-recreate\"
+              \"sudo docker compose up -d --force-recreate\",
+              \"sudo docker image prune -af --filter 'until=72h'\"
             ]" \
             --query "Command.CommandId" \
             --output text)
-          
+
           echo "command_id=$CMD_ID" >> "$GITHUB_OUTPUT"
 
       - name: Check Deployment Result
