@@ -5,7 +5,7 @@ services:
     container_name: dazytech-app
     restart: unless-stopped
     expose:
-      - "3000" 
+      - "80" 
     networks:
       - web-network
 
