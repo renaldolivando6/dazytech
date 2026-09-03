@@ -1,0 +1,39 @@
+# Compose untuk jalan di LOCAL.
+#
+#   npm run docker:dev        -> dev server + hot reload  http://localhost:3000
+#   npm run docker:preview    -> hasil build static/nginx http://localhost:8080
+#   npm run docker:dev:down   -> matikan semuanya
+#
+# File production tetap docker-compose.yml (image + nginx reverse proxy).
+
+services:
+  dev:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    container_name: dazytech-dev
+    ports:
+      - "3000:3000"
+    volumes:
+      # source di-mount supaya perubahan langsung kelihatan
+      - .:/app
+      # node_modules & .next tetap punya container (jangan ketiban punya Windows)
+      - /app/node_modules
+      - /app/.next
+    environment:
+      - NODE_ENV=development
+      - NEXT_TELEMETRY_DISABLED=1
+      - WATCHPACK_POLLING=true
+      - CHOKIDAR_USEPOLLING=true
+    restart: unless-stopped
+
+  # Opsional: cek hasil build production persis seperti di server (nginx + static export).
+  # Tidak ikut nyala kecuali dipanggil pakai profile "preview".
+  preview:
+    profiles: ["preview"]
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: dazytech-preview
+    ports:
+      - "8080:80"

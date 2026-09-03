@@ -16,6 +16,21 @@ bun dev
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
+## Jalan lewat Docker (local)
+
+Tanpa perlu install Node di mesin sendiri:
+
+```bash
+npm run docker:dev        # dev server + hot reload  -> http://localhost:3000
+npm run docker:preview    # hasil build static/nginx -> http://localhost:8080
+npm run docker:dev:down   # matikan container
+```
+
+- `Dockerfile.dev` + `docker-compose.dev.yml` khusus local. Source di-bind mount,
+  jadi perubahan file langsung ke-reload (file watcher pakai polling karena bind
+  mount Windows tidak meneruskan event inotify).
+- Production tetap pakai `Dockerfile` + `docker-compose.yml` (static export + nginx).
+
 You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
 
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.

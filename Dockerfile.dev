@@ -1,0 +1,22 @@
+# Dockerfile khusus DEVELOPMENT (hot reload).
+# Untuk production pakai `Dockerfile` (static export + nginx).
+FROM node:24-alpine
+
+WORKDIR /app
+
+# Dependency di-install di dalam image, bukan dari host,
+# supaya binary native-nya cocok dengan Linux.
+COPY package*.json ./
+RUN npm ci
+
+COPY . .
+
+ENV NEXT_TELEMETRY_DISABLED=1
+# Bind mount dari Windows tidak meneruskan event inotify,
+# jadi file watcher dipaksa polling agar hot reload tetap jalan.
+ENV WATCHPACK_POLLING=true
+ENV CHOKIDAR_USEPOLLING=true
+
+EXPOSE 3000
+
+CMD ["npm", "run", "dev:docker"]
