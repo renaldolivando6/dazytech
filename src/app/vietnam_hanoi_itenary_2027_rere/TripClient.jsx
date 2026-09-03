@@ -223,6 +223,13 @@ export default function TripClient() {
 
             {/* ---------------- header ---------------- */}
             <header className="sticky top-0 z-40 border-b border-[#EFE0CE] bg-[#FFF6EC]/85 backdrop-blur-xl">
+                {/* halaman sudah tampil sebelum JS selesai; bar ini menandakan masih menyiapkan */}
+                {!mounted && (
+                    <span
+                        aria-hidden
+                        className="vn-loadbar absolute inset-x-0 bottom-[-1px] block h-[2px] overflow-hidden"
+                    />
+                )}
                 <div className="mx-auto flex h-14 max-w-3xl items-center gap-2.5 px-4">
                     <span className="grid h-9 w-9 shrink-0 place-items-center rounded-2xl bg-[#221C16] text-lg">
                         🇻🇳
@@ -366,6 +373,11 @@ export default function TripClient() {
 /* Thumbnail memang di-crop supaya rapi; di sini fotonya ditampilkan utuh
    (object-contain) jadi tidak ada bagian yang hilang. */
 function Lightbox({ item, onClose }) {
+    const [loaded, setLoaded] = useState(false);
+
+    // versi penuh bisa ratusan KB — reset tiap ganti foto biar spinner-nya muncul lagi
+    useEffect(() => setLoaded(false), [item?.photo]);
+
     useEffect(() => {
         if (!item) return;
         const prev = document.body.style.overflow;
@@ -405,11 +417,25 @@ function Lightbox({ item, onClose }) {
                         onClick={(e) => e.stopPropagation()}
                         className="max-w-2xl"
                     >
+                        {!loaded && (
+                            <span className="flex flex-col items-center gap-2.5 px-10 py-20">
+                                <span className="vn-spin block h-8 w-8 rounded-full border-[3px] border-white/25 border-t-white" />
+                                <span className="text-[11px] font-semibold text-white/55">
+                                    Memuat foto…
+                                </span>
+                            </span>
+                        )}
                         {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img
+                            key={item.photo}
                             src={IMG(item.photo)}
                             alt={item.caption || ""}
-                            className="max-h-[74vh] w-auto rounded-2xl object-contain"
+                            onLoad={() => setLoaded(true)}
+                            onError={() => setLoaded(true)}
+                            className={cx(
+                                "max-h-[74vh] w-auto rounded-2xl object-contain",
+                                loaded ? "block" : "hidden"
+                            )}
                         />
                         <figcaption className="mt-3 text-center text-[12px] font-semibold leading-snug text-white/80">
                             {item.caption}
@@ -516,15 +542,13 @@ function TripTab({
                                 aria-label="Lihat foto ukuran penuh"
                                 className="relative w-[132px] shrink-0 overflow-hidden rounded-2xl active:scale-95 sm:w-[172px]"
                             >
-                                <span className="block aspect-[4/3] w-full">
-                                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                                    <img
-                                        src={THUMB(day.photo)}
-                                        alt={day.imgCaption || day.title}
-                                        loading="lazy"
-                                        className="h-full w-full object-cover"
-                                    />
-                                </span>
+                                <Photo
+                                    src={THUMB(day.photo)}
+                                    alt={day.imgCaption || day.title}
+                                    fallback={day.emoji}
+                                    eager
+                                    className="aspect-[4/3] w-full"
+                                />
                                 <span className="absolute bottom-1 right-1 rounded-md bg-black/55 px-1.5 py-[1px] text-[8px] font-bold uppercase tracking-wide text-white">
                                     perbesar
                                 </span>
@@ -742,6 +766,8 @@ function Hero({ status, totalDone, mounted }) {
             <img
                 src={HERO_IMG}
                 alt="Ha Long Bay"
+                fetchPriority="high"
+                decoding="async"
                 className="absolute inset-0 h-full w-full object-cover"
             />
             <div className="absolute inset-0 bg-gradient-to-br from-[#FF5A3C]/85 via-[#E11D48]/80 to-[#7C2D12]/90" />
@@ -894,12 +920,11 @@ function FoodTab({ checks, toggle, onZoom }) {
                                     aria-label={`Lihat foto ${it.name}`}
                                     className="relative h-[68px] w-[68px] shrink-0 overflow-hidden rounded-2xl bg-[#FBF3E8] active:scale-95"
                                 >
-                                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                                    <img
+                                    <Photo
                                         src={THUMB(it.photo)}
                                         alt={it.name}
-                                        loading="lazy"
-                                        className="h-full w-full object-cover"
+                                        fallback={it.emoji}
+                                        className="h-full w-full"
                                     />
                                     {it.real && (
                                         <span className="absolute bottom-0.5 right-0.5 rounded-md bg-black/60 px-1 text-[8px] leading-[14px] text-white">
@@ -1267,12 +1292,11 @@ function PrepTab({ checks, toggle, onZoom }) {
                                         style={{ aspectRatio: t.photoRatio || "16 / 10" }}
                                         className="mt-2 block w-full max-w-[300px] overflow-hidden rounded-xl border border-[#EFDCC4] active:scale-[0.98]"
                                     >
-                                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                                        <img
+                                        <Photo
                                             src={IMG(t.photo)}
                                             alt={t.text}
-                                            loading="lazy"
-                                            className="h-full w-full object-cover"
+                                            fallback="🏦"
+                                            className="h-full w-full"
                                         />
                                     </button>
                                 )}
@@ -1330,12 +1354,11 @@ function ScamSection({ onZoom }) {
                                 className="flex w-full items-center gap-2.5 p-2.5 text-left"
                             >
                                 {s.photo ? (
-                                    /* eslint-disable-next-line @next/next/no-img-element */
-                                    <img
+                                    <Photo
                                         src={THUMB(s.photo)}
                                         alt=""
-                                        loading="lazy"
-                                        className="h-14 w-14 shrink-0 rounded-xl object-cover"
+                                        fallback={s.emoji}
+                                        className="h-14 w-14 shrink-0 rounded-xl"
                                     />
                                 ) : (
                                     <span className="grid h-14 w-14 shrink-0 place-items-center rounded-xl bg-[#FFECE8] text-2xl">
@@ -1542,6 +1565,49 @@ function Row({ label, value, tone }) {
 
 /* ============================ bits ============================ */
 
+/* Semua gambar lewat sini supaya perilaku loading-nya seragam:
+   - skeleton shimmer selama belum ke-load (penting di internet lemot)
+   - state di-reset tiap src berubah, jadi ganti hari tidak menahan foto lama
+   - fallback emoji kalau filenya gagal dimuat */
+function Photo({ src, alt, className, fallback = "🖼️", eager = false, imgClassName }) {
+    const [state, setState] = useState("loading");
+    const ref = useRef(null);
+
+    useEffect(() => {
+        setState("loading");
+        const el = ref.current;
+        // gambar yang sudah ada di cache kadang selesai sebelum onLoad terpasang
+        if (el && el.complete && el.naturalWidth > 0) setState("ok");
+    }, [src]);
+
+    return (
+        <span className={cx("relative block overflow-hidden bg-[#F3E8DA]", className)}>
+            {state === "loading" && <span className="vn-shimmer absolute inset-0" />}
+            {state === "error" ? (
+                <span className="absolute inset-0 grid place-items-center text-2xl opacity-40">
+                    {fallback}
+                </span>
+            ) : (
+                /* eslint-disable-next-line @next/next/no-img-element */
+                <img
+                    ref={ref}
+                    src={src}
+                    alt={alt}
+                    loading={eager ? "eager" : "lazy"}
+                    decoding="async"
+                    onLoad={() => setState("ok")}
+                    onError={() => setState("error")}
+                    className={cx(
+                        "h-full w-full object-cover transition-opacity duration-300",
+                        state === "ok" ? "opacity-100" : "opacity-0",
+                        imgClassName
+                    )}
+                />
+            )}
+        </span>
+    );
+}
+
 function SectionHead({ emoji, title, sub }) {
     return (
         <div className="flex items-center gap-3">
@@ -1671,9 +1737,32 @@ function PageStyles() {
       .vn-float { animation: vn-float 3.6s ease-in-out infinite; }
       .vn-pulse { animation: vn-pulse 2s ease-in-out infinite; }
 
+      /* ---- state loading ---- */
+      @keyframes vn-shim { 0% { background-position: 200% 0 } 100% { background-position: -200% 0 } }
+      .vn-shimmer {
+        background: linear-gradient(100deg, #F1E4D3 28%, #FCF5EC 50%, #F1E4D3 72%);
+        background-size: 200% 100%;
+        animation: vn-shim 1.25s linear infinite;
+      }
+
+      @keyframes vn-spin { to { transform: rotate(360deg) } }
+      .vn-spin { animation: vn-spin .7s linear infinite; }
+
+      @keyframes vn-load { 0% { transform: translateX(-100%) } 100% { transform: translateX(100%) } }
+      .vn-loadbar { background: #F3E8DA; }
+      .vn-loadbar::after {
+        content: ""; position: absolute; inset: 0;
+        background: linear-gradient(90deg, transparent, #FF5A3C, transparent);
+        animation: vn-load 1.1s ease-in-out infinite;
+      }
+
       @media (prefers-reduced-motion: reduce) {
         .vn-float, .vn-pulse { animation: none !important; }
         .vn-root *, .vn-root *::before, .vn-root *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
+        /* loop cepat malah bikin kedip — dibuat diam saja */
+        .vn-shimmer { animation: none !important; background: #F1E4D3; }
+        .vn-spin { animation: none !important; }
+        .vn-loadbar::after { animation: none !important; opacity: .5; }
       }
     `}</style>
     );
