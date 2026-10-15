@@ -5,3 +5,8 @@ out
 .github
 *.md
 .env*
+data
+*.db
+*.db-*
+coverage
+tests

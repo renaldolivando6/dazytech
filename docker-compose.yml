@@ -1,13 +1,37 @@
-version: '3.8'
+# Production (server WEB_LINUX, /opt/apps/rere-apps/dazytech).
+# Dikirim ke server oleh .github/workflows/deploy-dazytech.yml.
 services:
-  companytech-app: 
+  companytech-app:
     image: sungaibudiwebdev/dazytech:latest
     container_name: dazytech-app
     restart: unless-stopped
+    # Sengaja TIDAK ada `ports:`. Satu-satunya jalan masuk adalah nginx-reverse-proxy
+    # lewat web-network (dulu ada port terbuka -> container disusupi crypto miner).
     expose:
-      - "80" 
+      - "3000"
+    # Saat database masih kosong (deploy pertama), akun `admin` dibuat dengan
+    # password acak yang dicetak SEKALI ke log:  docker logs dazytech-app | grep auth
+    volumes:
+      # SQLite (dazytech.db + file -wal/-shm). Named volume: aman saat container
+      # dihapus/di-recreate/redeploy. JANGAN pernah `docker compose down -v`.
+      - dazytech-data:/app/data
+    # Hardening: filesystem container read-only, yang bisa ditulis hanya volume
+    # data + tmpfs yang tidak bisa mengeksekusi file (noexec). Program asing
+    # (mis. crypto miner) tidak bisa diunduh lalu dijalankan.
+    read_only: true
+    tmpfs:
+      - /tmp:noexec,nosuid,size=64m
+      - /app/.next/cache:noexec,nosuid,uid=1001,gid=1001,size=64m
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
     networks:
       - web-network
+
+volumes:
+  dazytech-data:
+    name: dazytech-data
 
 networks:
   web-network:

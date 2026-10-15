@@ -8,7 +8,11 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "docker:dev": "docker compose -f docker-compose.dev.yml up --build",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "db:generate": "drizzle-kit generate",
+    "db:snapshot": "node scripts/db-snapshot.mjs",
+    "docker:dev": "docker compose -f docker-compose.dev.yml up --build --renew-anon-volumes",
     "docker:dev:down": "docker compose -f docker-compose.dev.yml down",
     "docker:preview": "docker compose -f docker-compose.dev.yml --profile preview up --build preview"
   },
@@ -16,21 +20,44 @@
     "@react-three/drei": "^10.5.1",
     "@react-three/fiber": "^9.2.0",
     "@types/three": "^0.178.1",
+    "better-sqlite3": "^13.0.3",
+    "drizzle-orm": "^0.45.4",
+    "exceljs": "^4.4.0",
     "framer-motion": "^12.23.6",
     "lucide-react": "^0.525.0",
-    "next": "^15.4.2",
-    "react": "^19.1.0",
-    "react-dom": "^19.1.0",
-    "three": "^0.178.0"
+    "next": "^15.5.27",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1",
+    "server-only": "^0.0.1",
+    "three": "^0.178.0",
+    "zod": "^4.6.7"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
     "@tailwindcss/postcss": "^4",
+    "@types/better-sqlite3": "^9.6.0",
     "@types/node": "24.8.1",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
     "autoprefixer": "^10.4.21",
+    "drizzle-kit": "^0.31.11",
     "eslint": "^9",
-    "eslint-config-next": "15.4.2",
+    "eslint-config-next": "^15.5.27",
     "postcss": "^8.5.6",
-    "tailwindcss": "^4.1.11"
+    "tailwindcss": "^4.1.11",
+    "typescript": "^5.9.3",
+    "vitest": "^5.0.4"
+  },
+  "overrides": {
+    "exceljs": {
+      "uuid": "^11.1.1"
+    },
+    "postcss": "$postcss"
+  },
+  "allowScripts": {
+    "better-sqlite3": false,
+    "esbuild": false,
+    "unrs-resolver": false,
+    "@tailwindcss/oxide": false
   }
 }

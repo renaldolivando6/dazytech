@@ -39,3 +39,9 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# SQLite lokal (dev). Di production file DB ada di named volume, bukan di repo.
+/data/
+*.db
+*.db-shm
+*.db-wal

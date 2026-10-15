@@ -1,51 +1,81 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# Dazytech
 
-## Getting Started
+Company profile `dazytech.web.id` + area admin internal (`/admin`) untuk modul
+**komisi** (import Excel Accurate → hitung komisi per cutoff tanggal 15).
 
-First, run the development server:
+Next.js 15 (App Router) **standalone** · SQLite (`better-sqlite3` + Drizzle) ·
+Tailwind 4. Halaman compro tetap di-prerender statis; `/admin` dinamis dan wajib login.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
-
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-## Jalan lewat Docker (local)
-
-Tanpa perlu install Node di mesin sendiri:
+## Jalan di local (full Docker, tanpa Node di host)
 
 ```bash
-npm run docker:dev        # dev server + hot reload  -> http://localhost:3000
-npm run docker:preview    # hasil build static/nginx -> http://localhost:8080
-npm run docker:dev:down   # matikan container
+npm run docker:dev        # dev + hot reload           -> http://localhost:3000
+npm run docker:preview    # image production persis   -> http://localhost:8080
+npm run docker:dev:down
 ```
 
-- `Dockerfile.dev` + `docker-compose.dev.yml` khusus local. Source di-bind mount,
-  jadi perubahan file langsung ke-reload (file watcher pakai polling karena bind
-  mount Windows tidak meneruskan event inotify).
-- Production tetap pakai `Dockerfile` + `docker-compose.yml` (static export + nginx).
+- Setelah `package.json` berubah, jalankan ulang `npm run docker:dev`
+  (`--renew-anon-volumes` membuang `node_modules` lama).
+- Perintah lain dijalankan di dalam container:
+  `docker exec dazytech-dev npm test` · `npm run typecheck` · `npm run db:generate`.
+- Database dev: `./data/dazytech.db` (di-gitignore). Hapus file itu untuk mulai dari nol.
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+### Login admin pertama
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Saat database masih kosong, server membuat user `admin` dengan password acak
+dan mencetaknya **sekali** ke log:
 
-## Learn More
+```bash
+docker logs dazytech-dev 2>&1 | grep auth        # dev
+docker logs dazytech-app 2>&1 | grep auth        # production (via SSM)
+```
 
-To learn more about Next.js, take a look at the following resources:
+Login pertama wajib ganti password. Alternatif: set `ADMIN_USERNAME` /
+`ADMIN_INITIAL_PASSWORD` sebelum start pertama.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Modul komisi
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+| Halaman | Isi |
+|---|---|
+| `/admin/komisi/` | Import Excel (cek dulu → import), riwayat import, data faktur + filter |
+| `/admin/komisi/perhitungan/` | Preview per tanggal cutoff → simpan & kunci, riwayat, export Excel, batalkan |
+| `/admin/komisi/master/` | Tarif per KATEGORI + konversi satuan (mis. 1 KTK = 5 PCS) |
 
-## Deploy on Vercel
+Aturan:
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- **Kunci duplikat** per baris = `NO INV | NAMA BARANG | urutan kemunculan di faktur itu`.
+  Import ulang file yang sama → semua baris ditandai *duplikat*, tidak masuk lagi.
+- Baris yang sudah ada & **belum dikomisikan** ikut diperbarui (mis. `blm.lunas`
+  berubah Ya → Tidak = siap dihitung di periode berikutnya).
+- Baris yang **sudah dikomisikan** tidak pernah diubah; kalau datanya berbeda di
+  file baru → ditandai *konflik* untuk dicek manual.
+- Yang dihitung: faktur s/d tanggal cutoff, `blm.lunas = Tidak`, belum pernah
+  dikomisikan, kategori+satuannya punya tarif. Komisi = qty × konversi × tarif.
+- Perhitungan yang disimpan menyimpan **snapshot tarif**; ubah tarif tidak
+  mengubah perhitungan lama. Batalkan perhitungan = baris dilepas lagi, catatan tetap ada.
+- Hanya kolom yang relevan yang dipakai: NO INV, TGL, NAMA BARANG, KATEGORI, QTY,
+  SATUAN, blm.lunas. Kolom dicari berdasarkan nama header, bukan posisi.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Uji dengan file Accurate asli (tidak di-commit, berisi data pelanggan):
+
+```bash
+docker cp "file.xlsx" dazytech-dev:/tmp/real.xlsx
+docker exec -e REAL_XLSX=/tmp/real.xlsx dazytech-dev npx vitest run tests/real-file.test.ts
+```
+
+## Production
+
+- Server **WEB_LINUX**, `/opt/apps/rere-apps/dazytech`, container `dazytech-app`
+  (port 3000, **tanpa port publik**) di belakang repo `nginx-reverse-proxy`.
+- Deploy: GitHub Actions → *Deploy Dazytech (Next.js)* (manual). Urutan: test →
+  build & push `sungaibudiwebdev/dazytech:latest` (yang lama jadi `:previous`) →
+  SSM `docker compose up -d --force-recreate --wait`.
+- Database: named volume **`dazytech-data`** → `/app/data/dazytech.db`.
+  Aman saat container dihapus/di-recreate. **Jangan pernah `docker compose down -v`.**
+- Migrasi skema jalan otomatis saat container start (`src/instrumentation.ts`).
+  Ubah skema: edit `src/lib/db/schema.ts` → `npm run db:generate` → commit folder `drizzle/`.
+- Hardening container: user non-root, filesystem read-only, `/tmp` noexec,
+  `cap_drop: ALL`, `no-new-privileges`.
+
+Rollback: di server ubah tag image ke `:previous` lalu `docker compose up -d`.
+Migrasi skema tidak otomatis mundur.

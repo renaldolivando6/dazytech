@@ -1,10 +1,35 @@
 name: Deploy Dazytech (Next.js)
 
+# Manual trigger dari tab Actions.
 on:
   workflow_dispatch: {}
 
 jobs:
+  # --- STAGE 0: gate — typecheck + unit test merah = build & deploy batal ---
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Unit tests
+        run: npm test
+
+  # --- STAGE 1: build image & push ke Docker Hub ---
   build-and-push:
+    needs: test
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
@@ -16,8 +41,17 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
+      # Simpan image yang sedang jalan sebagai :previous untuk rollback.
+      # Dilewati dengan aman kalau belum ada :latest.
+      - name: Promote current :latest to :previous
+        continue-on-error: true
+        run: |
+          docker pull sungaibudiwebdev/dazytech:latest
+          docker tag sungaibudiwebdev/dazytech:latest sungaibudiwebdev/dazytech:previous
+          docker push sungaibudiwebdev/dazytech:previous
+
       - name: Build and push Docker image
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v6
         with:
           context: .
           push: true
@@ -26,6 +60,7 @@ jobs:
           build-args: |
             NEXT_PUBLIC_API_URL=${{ secrets.NEXT_PUBLIC_API_URL }}
 
+  # --- STAGE 2: deploy ke WEB_LINUX via SSM ---
   deploy:
     needs: build-and-push
     runs-on: ubuntu-latest
@@ -45,6 +80,10 @@ jobs:
         run: |
           B64_COMPOSE=$(base64 -w 0 docker-compose.yml)
 
+          # `up --wait`: tunggu healthcheck container (GET /api/health) hijau.
+          # Kalau tidak sehat, perintah gagal -> status SSM Failed -> job merah.
+          # Database SQLite ada di named volume `dazytech-data`: aman di-recreate.
+          # JANGAN tambahkan `down -v` di sini (menghapus database).
           CMD_ID=$(aws ssm send-command \
             --region "${{ secrets.AWS_REGION }}" \
             --document-name "AWS-RunShellScript" \
@@ -54,7 +93,7 @@ jobs:
               \"cd /opt/apps/rere-apps/dazytech\",
               \"echo $B64_COMPOSE | base64 -d > docker-compose.yml\",
               \"sudo docker compose pull\",
-              \"sudo docker compose up -d --force-recreate\",
+              \"sudo docker compose up -d --force-recreate --wait\",
               \"sudo docker image prune -af --filter 'until=72h'\"
             ]" \
             --query "Command.CommandId" \
@@ -66,9 +105,15 @@ jobs:
         run: |
           CMD_ID="${{ steps.send.outputs.command_id }}"
           INSTANCE_ID="${{ secrets.SSM_INSTANCE_ID_LINUX }}"
-          sleep 15
+
+          # Tunggu sampai perintah benar-benar selesai (bukan `sleep` tetap).
+          aws ssm wait command-executed --command-id "$CMD_ID" --instance-id "$INSTANCE_ID" || true
+
           aws ssm get-command-invocation \
             --command-id "$CMD_ID" \
             --instance-id "$INSTANCE_ID" \
             --query "{Status:Status,Output:StandardOutputContent,Error:StandardErrorContent}" \
             --output json
+
+          STATUS=$(aws ssm get-command-invocation --command-id "$CMD_ID" --instance-id "$INSTANCE_ID" --query Status --output text)
+          [ "$STATUS" = "Success" ] || { echo "Deploy gagal: status SSM $STATUS"; exit 1; }

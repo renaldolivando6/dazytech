@@ -1,10 +1,13 @@
 # Compose untuk jalan di LOCAL.
 #
 #   npm run docker:dev        -> dev server + hot reload  http://localhost:3000
-#   npm run docker:preview    -> hasil build static/nginx http://localhost:8080
+#   npm run docker:preview    -> image production persis  http://localhost:8080
 #   npm run docker:dev:down   -> matikan semuanya
 #
-# File production tetap docker-compose.yml (image + nginx reverse proxy).
+# Setelah package.json berubah, jalankan ulang `npm run docker:dev`: flag
+# --renew-anon-volumes membuang node_modules lama di anonymous volume.
+#
+# File production tetap docker-compose.yml.
 
 services:
   dev:
@@ -15,9 +18,10 @@ services:
     ports:
       - "3000:3000"
     volumes:
-      # source di-mount supaya perubahan langsung kelihatan
+      # source di-mount supaya perubahan langsung kelihatan.
+      # Database dev ada di ./data/dazytech.db (di-gitignore).
       - .:/app
-      # node_modules & .next tetap punya container (jangan ketiban punya Windows)
+      # node_modules & .next tetap punya container (jangan ketiban punya host)
       - /app/node_modules
       - /app/.next
     environment:
@@ -27,8 +31,9 @@ services:
       - CHOKIDAR_USEPOLLING=true
     restart: unless-stopped
 
-  # Opsional: cek hasil build production persis seperti di server (nginx + static export).
+  # Opsional: cek image production persis seperti di server (Next standalone).
   # Tidak ikut nyala kecuali dipanggil pakai profile "preview".
+  # Password admin awalnya tercetak di log: docker logs dazytech-preview
   preview:
     profiles: ["preview"]
     build:
@@ -36,4 +41,18 @@ services:
       dockerfile: Dockerfile
     container_name: dazytech-preview
     ports:
-      - "8080:80"
+      - "8080:3000"
+    volumes:
+      - dazytech-preview-data:/app/data
+    # Sama dengan hardening production (docker-compose.yml).
+    read_only: true
+    tmpfs:
+      - /tmp:noexec,nosuid,size=64m
+      - /app/.next/cache:noexec,nosuid,uid=1001,gid=1001,size=64m
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+
+volumes:
+  dazytech-preview-data:
