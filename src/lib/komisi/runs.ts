@@ -41,11 +41,16 @@ export type RunPreview = {
 //   4. kategori + satuannya punya tarif.
 // Baris yang belum lunas tetap menunggu dan otomatis ikut periode berikutnya
 // begitu import terbaru menandainya lunas.
-export function previewRun(db: DB, cutoffDate: string, rates: RateTable = loadRateTable(db)): RunPreview {
+export function previewRun(
+  db: DB,
+  companyId: number,
+  cutoffDate: string,
+  rates: RateTable = loadRateTable(db, companyId),
+): RunPreview {
   const pending = db
     .select()
     .from(komisiLines)
-    .where(isNull(komisiLines.commissionRunId))
+    .where(and(eq(komisiLines.companyId, companyId), isNull(komisiLines.commissionRunId)))
     .orderBy(asc(komisiLines.invoiceDate), asc(komisiLines.invoiceNo), asc(komisiLines.id))
     .all();
 
@@ -108,6 +113,7 @@ export function previewRun(db: DB, cutoffDate: string, rates: RateTable = loadRa
 export function createRun(
   db: DB,
   input: {
+    companyId: number;
     cutoffDate: string;
     label: string;
     note: string | null;
@@ -119,7 +125,7 @@ export function createRun(
   },
 ): { runId: number; totalLines: number; totalAmount: number } {
   return db.transaction((tx) => {
-    const preview = previewRun(tx as unknown as DB, input.cutoffDate);
+    const preview = previewRun(tx as unknown as DB, input.companyId, input.cutoffDate);
     if (preview.totalLines === 0) {
       throw new RunError('Tidak ada baris yang siap dihitung untuk cutoff ini.');
     }
@@ -132,6 +138,7 @@ export function createRun(
     const run = tx
       .insert(komisiRuns)
       .values({
+        companyId: input.companyId,
         label: input.label,
         cutoffDate: input.cutoffDate,
         totalLines: preview.totalLines,
@@ -179,9 +186,13 @@ export function createRun(
 
 // Membatalkan perhitungan: baris-barisnya dilepas lagi (bisa dihitung ulang),
 // tapi catatan perhitungan + snapshot itemnya tetap disimpan sebagai riwayat.
-export function voidRun(db: DB, input: { runId: number; reason: string; userId: number | null }): void {
+export function voidRun(db: DB, input: { companyId: number; runId: number; reason: string; userId: number | null }): void {
   db.transaction((tx) => {
-    const run = tx.select().from(komisiRuns).where(eq(komisiRuns.id, input.runId)).get();
+    const run = tx
+      .select()
+      .from(komisiRuns)
+      .where(and(eq(komisiRuns.id, input.runId), eq(komisiRuns.companyId, input.companyId)))
+      .get();
     if (!run) throw new RunError('Perhitungan tidak ditemukan.');
     if (run.status === 'void') throw new RunError('Perhitungan ini sudah dibatalkan.');
 
@@ -193,7 +204,7 @@ export function voidRun(db: DB, input: { runId: number; reason: string; userId: 
   });
 }
 
-export function listRuns(db: DB) {
+export function listRuns(db: DB, companyId: number) {
   return db
     .select({
       id: komisiRuns.id,
@@ -207,12 +218,18 @@ export function listRuns(db: DB) {
     })
     .from(komisiRuns)
     .leftJoin(users, eq(users.id, komisiRuns.createdBy))
+    .where(eq(komisiRuns.companyId, companyId))
     .orderBy(desc(komisiRuns.id))
     .all();
 }
 
-export function getRun(db: DB, runId: number) {
-  const run = db.select().from(komisiRuns).where(eq(komisiRuns.id, runId)).get();
+// Selalu lewat companyId: perhitungan company lain dianggap tidak ada.
+export function getRun(db: DB, companyId: number, runId: number) {
+  const run = db
+    .select()
+    .from(komisiRuns)
+    .where(and(eq(komisiRuns.id, runId), eq(komisiRuns.companyId, companyId)))
+    .get();
   if (!run) return null;
 
   const [createdBy, voidedBy] = [run.createdBy, run.voidedBy].map((id) =>

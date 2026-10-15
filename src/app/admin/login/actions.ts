@@ -8,6 +8,7 @@ import { safeAdminPath } from '@/lib/auth/constants';
 import { verifyAgainstDummy, verifyPassword } from '@/lib/auth/password';
 import { clearLoginFailures, loginBlockedFor, recordLoginFailure } from '@/lib/auth/rate-limit';
 import { clientIp, createSession } from '@/lib/auth/session';
+import { getCurrentCompany } from '@/lib/company';
 import { getDb } from '@/lib/db/client';
 import { users } from '@/lib/db/schema';
 
@@ -40,5 +41,9 @@ export async function loginAction(_prev: ActionState, formData: FormData): Promi
 
   clearLoginFailures(ip, username);
   await createSession(user.id);
-  redirect(user.mustChangePassword ? '/admin/akun/?wajib=1' : (safeAdminPath(next) ?? '/admin/komisi/'));
+  if (user.mustChangePassword) redirect('/admin/akun/?wajib=1');
+  const target = safeAdminPath(next) ?? '/admin/komisi/';
+  // Belum pernah memilih company (atau company-nya sudah tidak ada): pilih dulu.
+  if (!(await getCurrentCompany())) redirect(`/admin/company/?next=${encodeURIComponent(target)}`);
+  redirect(target);
 }

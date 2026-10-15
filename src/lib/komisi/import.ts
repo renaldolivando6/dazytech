@@ -1,4 +1,4 @@
-import { desc, eq, inArray } from 'drizzle-orm';
+import { and, desc, eq, inArray } from 'drizzle-orm';
 import type { DB } from '@/lib/db/open';
 import { komisiImportRows, komisiImports, komisiLines, type KomisiLine } from '@/lib/db/schema';
 import type { ParsedLine, ParseResult } from './excel';
@@ -48,11 +48,16 @@ type Plan = {
 
 const IN_CHUNK = 500;
 
-function findExisting(db: DB, keys: string[]): Map<string, KomisiLine> {
+function findExisting(db: DB, companyId: number, keys: string[]): Map<string, KomisiLine> {
   const existing = new Map<string, KomisiLine>();
   for (let i = 0; i < keys.length; i += IN_CHUNK) {
     const chunk = keys.slice(i, i + IN_CHUNK);
-    for (const line of db.select().from(komisiLines).where(inArray(komisiLines.lineKey, chunk)).all()) {
+    const rows = db
+      .select()
+      .from(komisiLines)
+      .where(and(eq(komisiLines.companyId, companyId), inArray(komisiLines.lineKey, chunk)))
+      .all();
+    for (const line of rows) {
       existing.set(line.lineKey, line);
     }
   }
@@ -90,10 +95,11 @@ function rateWarning(rates: RateTable, line: ParsedLine): string | null {
   return r.ok ? null : `${r.message} — baris tetap disimpan, tapi tidak ikut dihitung sampai tarifnya ditambahkan.`;
 }
 
-function plan(db: DB, parsed: ParseResult): Plan {
-  const rates = loadRateTable(db);
+function plan(db: DB, companyId: number, parsed: ParseResult): Plan {
+  const rates = loadRateTable(db, companyId);
   const existing = findExisting(
     db,
+    companyId,
     parsed.lines.map((l) => l.lineKey),
   );
 
@@ -187,12 +193,12 @@ function summarize(rows: ClassifiedRow[]): ImportSummary {
   return summary;
 }
 
-function previousImportOf(db: DB, fileHash: string) {
+function previousImportOf(db: DB, companyId: number, fileHash: string) {
   return (
     db
       .select({ id: komisiImports.id, createdAt: komisiImports.createdAt })
       .from(komisiImports)
-      .where(eq(komisiImports.fileHash, fileHash))
+      .where(and(eq(komisiImports.companyId, companyId), eq(komisiImports.fileHash, fileHash)))
       .orderBy(desc(komisiImports.id))
       .get() ?? null
   );
@@ -200,16 +206,16 @@ function previousImportOf(db: DB, fileHash: string) {
 
 export function previewImport(
   db: DB,
-  input: { fileName: string; fileHash: string; parsed: ParseResult },
+  input: { companyId: number; fileName: string; fileHash: string; parsed: ParseResult },
 ): ImportPreview {
-  const { rows } = plan(db, input.parsed);
+  const { rows } = plan(db, input.companyId, input.parsed);
   return {
     fileName: input.fileName,
     fileHash: input.fileHash,
     sheetName: input.parsed.sheetName,
     summary: summarize(rows),
     rows,
-    previousImport: previousImportOf(db, input.fileHash),
+    previousImport: previousImportOf(db, input.companyId, input.fileHash),
   };
 }
 
@@ -218,16 +224,17 @@ export function previewImport(
 // tetap benar. better-sqlite3 sinkron: transaksi ini tidak bisa diselang.
 export function commitImport(
   db: DB,
-  input: { fileName: string; fileHash: string; parsed: ParseResult; userId: number | null },
+  input: { companyId: number; fileName: string; fileHash: string; parsed: ParseResult; userId: number | null },
 ): { importId: number; summary: ImportSummary } {
   return db.transaction((tx) => {
-    const { rows, inserts, updates } = plan(tx as unknown as DB, input.parsed);
+    const { rows, inserts, updates } = plan(tx as unknown as DB, input.companyId, input.parsed);
     const summary = summarize(rows);
     const now = new Date();
 
     const imp = tx
       .insert(komisiImports)
       .values({
+        companyId: input.companyId,
         fileName: input.fileName,
         fileHash: input.fileHash,
         importedBy: input.userId,
@@ -245,6 +252,7 @@ export function commitImport(
     for (const line of inserts) {
       tx.insert(komisiLines)
         .values({
+          companyId: input.companyId,
           lineKey: line.lineKey,
           invoiceNo: line.invoiceNo,
           invoiceDate: line.invoiceDate,

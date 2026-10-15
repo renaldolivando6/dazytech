@@ -63,8 +63,10 @@ export function Page({
   actions?: ReactNode;
   children: ReactNode;
 }) {
+  // Dibungkus <div> biasa: Next.js men-scroll elemen pertama halaman ke atas saat
+  // navigasi, dan melewatinya (dengan warning di console dev) kalau elemen itu sticky.
   return (
-    <>
+    <div>
       <div className="sticky top-11 z-20 border-b border-black/[0.06] bg-parchment/80 backdrop-blur-xl backdrop-saturate-[1.8]">
         <div className="mx-auto flex min-h-[52px] max-w-[1440px] flex-wrap items-center justify-between gap-x-6 gap-y-2 px-4 py-2 sm:px-8">
           <h1 className="text-[21px] font-semibold leading-[1.19] tracking-[-0.012em]">{title}</h1>
@@ -75,7 +77,7 @@ export function Page({
         {description && <p className="-mt-1 mb-6 max-w-3xl text-[13px] text-muted">{description}</p>}
         <div className="space-y-6">{children}</div>
       </main>
-    </>
+    </div>
   );
 }
 

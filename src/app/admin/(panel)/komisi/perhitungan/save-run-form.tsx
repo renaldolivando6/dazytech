@@ -1,6 +1,7 @@
 'use client';
 
 import { useActionState } from 'react';
+import { CompanyField } from '@/components/admin/company-context';
 import { SubmitButton } from '@/components/admin/submit-button';
 import { Alert, inputClass, labelClass, textareaClass } from '@/components/admin/ui';
 import { valueOf } from '@/lib/action-result';
@@ -24,6 +25,7 @@ export function SaveRunForm({
   return (
     <form action={action} className="space-y-4">
       {state && !state.ok && <Alert tone="red">{state.error}</Alert>}
+      <CompanyField />
       <input type="hidden" name="cutoffDate" value={cutoffDate} />
       <input type="hidden" name="expectedAmount" value={totalAmount} />
 

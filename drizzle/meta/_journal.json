@@ -15,6 +15,13 @@
       "when": 1791999313307,
       "tag": "0001_seed_komisi_rates",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1792032613418,
+      "tag": "0002_companies",
+      "breakpoints": true
     }
   ]
 }

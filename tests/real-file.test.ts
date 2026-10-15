@@ -16,8 +16,8 @@ describe.skipIf(!file)('file export Accurate asli', () => {
     expect(parsed.errors).toEqual([]);
 
     const db = memoryDb();
-    const { summary } = commitImport(db, { fileName: 'real.xlsx', fileHash: 'real', parsed, userId: null });
-    const preview = previewRun(db, '9999-12-31');
+    const { summary } = commitImport(db, { companyId: 1, fileName: 'real.xlsx', fileHash: 'real', parsed, userId: null });
+    const preview = previewRun(db, 1, '9999-12-31');
 
     console.table(preview.groups);
     console.log({ summary, totalAmount: preview.totalAmount, excluded: preview.excluded });

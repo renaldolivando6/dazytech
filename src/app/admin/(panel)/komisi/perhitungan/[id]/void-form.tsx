@@ -1,6 +1,7 @@
 'use client';
 
 import { useActionState, useState } from 'react';
+import { CompanyField } from '@/components/admin/company-context';
 import { SubmitButton } from '@/components/admin/submit-button';
 import { Alert, buttonClass, inputClass } from '@/components/admin/ui';
 import { valueOf } from '@/lib/action-result';
@@ -22,6 +23,7 @@ export function VoidRunForm({ runId }: { runId: number }) {
   return (
     <form action={action} className="w-full space-y-3">
       {state && !state.ok && !fieldErrors && <Alert tone="red">{state.error}</Alert>}
+      <CompanyField />
       <input type="hidden" name="runId" value={runId} />
       <div className="flex flex-col gap-2 sm:flex-row sm:items-start">
         <div className="flex-1">

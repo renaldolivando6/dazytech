@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useMemo, useRef, useState, useTransition } from 'react';
+import { useCompany } from '@/components/admin/company-context';
 import { Alert, Badge, Code, EmptyRow, Table, Td, Th, buttonClass, cx } from '@/components/admin/ui';
 import { formatDate, formatDateTime, formatNumber } from '@/lib/format';
 import type { ImportPreview, ImportSummary, RowStatus } from '@/lib/komisi/import';
@@ -13,6 +14,7 @@ type Done = { importId: number; summary: ImportSummary };
 
 export function ImportPanel() {
   const router = useRouter();
+  const company = useCompany();
   const inputRef = useRef<HTMLInputElement>(null);
   const [file, setFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<ImportPreview | null>(null);
@@ -25,6 +27,7 @@ export function ImportPanel() {
   const formData = () => {
     const fd = new FormData();
     if (file) fd.set('file', file);
+    fd.set('companyId', String(company?.id ?? ''));
     return fd;
   };
 

@@ -1,6 +1,7 @@
 'use client';
 
 import { useActionState, useEffect, useState } from 'react';
+import { CompanyField } from '@/components/admin/company-context';
 import { SubmitButton } from '@/components/admin/submit-button';
 import { Badge, Code, EmptyRow, Table, Td, Th, buttonClass, cx, inputSmClass } from '@/components/admin/ui';
 import { valueOf, type ActionState } from '@/lib/action-result';
@@ -175,6 +176,7 @@ function CategoryRow({ category: c }: { category: MasterCategory }) {
       <Td className="align-top">
         <div className="flex items-center justify-end gap-1">
           <form id={formId} action={action}>
+            <CompanyField />
             <input type="hidden" name="id" value={c.id} />
             <SubmitButton size="sm" pendingText="…">
               Simpan
@@ -184,6 +186,7 @@ function CategoryRow({ category: c }: { category: MasterCategory }) {
             Batal
           </button>
           <form action={deleteCategoryAction}>
+            <CompanyField />
             <input type="hidden" name="id" value={c.id} />
             <SubmitButton
               variant="danger"
@@ -222,6 +225,7 @@ function Conversions({ category: c }: { category: MasterCategory }) {
     <div className="flex flex-wrap items-center gap-1.5">
       {c.conversions.map((u) => (
         <form key={u.id} action={deleteConversionAction} className="inline-flex">
+          <CompanyField />
           <input type="hidden" name="id" value={u.id} />
           <span className="inline-flex h-6 items-center gap-1 rounded-full bg-black/[0.05] pl-2.5 pr-1 text-[12px] text-ink-80">
             1 {u.unit} = {u.factor} {c.baseUnit}
@@ -245,6 +249,7 @@ function Conversions({ category: c }: { category: MasterCategory }) {
 
       {open ? (
         <form action={action} className="flex flex-wrap items-center gap-1.5">
+          <CompanyField />
           <input type="hidden" name="categoryId" value={c.id} />
           <span className="text-[12px] text-muted">1</span>
           <input
@@ -367,6 +372,7 @@ function AddRow({ defaultCode, defaultUnit, onDone }: { defaultCode?: string; de
       <Td className="align-top">
         <div className="flex items-center justify-end gap-1">
           <form id={formId} action={action}>
+            <CompanyField />
             <SubmitButton size="sm" pendingText="…">
               Tambah
             </SubmitButton>

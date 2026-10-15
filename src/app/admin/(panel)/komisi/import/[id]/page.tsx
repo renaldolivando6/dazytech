@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { Badge, EmptyRow, Page, Panel, Table, Tabs, Td, Th, buttonClass } from '@/components/admin/ui';
-import { requireUser } from '@/lib/auth/session';
+import { requireCompany } from '@/lib/company';
 import { getDb } from '@/lib/db/client';
 import { formatDateTime } from '@/lib/format';
 import type { RowStatus } from '@/lib/komisi/import';
@@ -18,14 +18,14 @@ export default async function ImportDetailPage({
   params: Promise<{ id: string }>;
   searchParams: Promise<{ status?: string }>;
 }) {
-  await requireUser();
+  const { company } = await requireCompany();
   const { id } = await params;
   const { status: rawStatus } = await searchParams;
   const importId = Number.parseInt(id, 10);
   if (!Number.isSafeInteger(importId)) notFound();
 
   const status: RowStatus | 'all' = (ROW_STATUS_ORDER as string[]).includes(rawStatus ?? '') ? (rawStatus as RowStatus) : 'all';
-  const imp = getImport(getDb(), importId, status);
+  const imp = getImport(getDb(), company.id, importId, status);
   if (!imp) notFound();
 
   const counts: Record<RowStatus, number> = {

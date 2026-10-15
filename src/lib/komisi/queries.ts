@@ -16,15 +16,15 @@ import { previewRun } from './runs';
 
 // ---------------------------------------------------------------- ringkasan
 
-export function getOverview(db: DB, today: string) {
+export function getOverview(db: DB, companyId: number, today: string) {
   // Tanpa batas cutoff: semua yang menunggu s/d hari ini.
-  const pending = previewRun(db, today);
+  const pending = previewRun(db, companyId, today);
   const done = db
     .select({ lines: sum(komisiRuns.totalLines), amount: sum(komisiRuns.totalAmount), runs: count() })
     .from(komisiRuns)
-    .where(eq(komisiRuns.status, 'final'))
+    .where(and(eq(komisiRuns.companyId, companyId), eq(komisiRuns.status, 'final')))
     .get();
-  const totalLines = db.select({ n: count() }).from(komisiLines).get()?.n ?? 0;
+  const totalLines = db.select({ n: count() }).from(komisiLines).where(eq(komisiLines.companyId, companyId)).get()?.n ?? 0;
 
   return {
     totalLines,
@@ -43,7 +43,7 @@ export type LineFilter = (typeof LINE_FILTERS)[number];
 // Kategori aktif + satuannya punya tarif (satuan dasar atau ada konversinya).
 const hasRate = sql`EXISTS (
   SELECT 1 FROM ${komisiCategories} c
-  WHERE c.code = ${komisiLines.category} AND c.is_active = 1
+  WHERE c.company_id = ${komisiLines.companyId} AND c.code = ${komisiLines.category} AND c.is_active = 1
     AND (c.base_unit = ${komisiLines.unit}
          OR EXISTS (SELECT 1 FROM ${komisiUnitConversions} u WHERE u.category_id = c.id AND u.unit = ${komisiLines.unit}))
 )`;
@@ -63,8 +63,8 @@ function filterCondition(filter: LineFilter): SQL | undefined {
   }
 }
 
-export function listLines(db: DB, opts: { filter: LineFilter; q: string; page: number; pageSize: number }) {
-  const conditions: (SQL | undefined)[] = [filterCondition(opts.filter)];
+export function listLines(db: DB, companyId: number, opts: { filter: LineFilter; q: string; page: number; pageSize: number }) {
+  const conditions: (SQL | undefined)[] = [eq(komisiLines.companyId, companyId), filterCondition(opts.filter)];
   const q = opts.q.trim();
   if (q) {
     const pattern = `%${q.replace(/[\\%_]/g, (c) => `\\${c}`)}%`;
@@ -95,7 +95,7 @@ export function listLines(db: DB, opts: { filter: LineFilter; q: string; page: n
     .offset((opts.page - 1) * opts.pageSize)
     .all();
 
-  const rates = loadRateTable(db);
+  const rates = loadRateTable(db, companyId);
   return {
     total,
     rows: rows.map(({ line, runAmount }) => {
@@ -118,7 +118,7 @@ export function listLines(db: DB, opts: { filter: LineFilter; q: string; page: n
 
 // ---------------------------------------------------------------- riwayat import
 
-export function listImports(db: DB, limit = 20) {
+export function listImports(db: DB, companyId: number, limit = 20) {
   return db
     .select({
       id: komisiImports.id,
@@ -135,17 +135,18 @@ export function listImports(db: DB, limit = 20) {
     })
     .from(komisiImports)
     .leftJoin(users, eq(users.id, komisiImports.importedBy))
+    .where(eq(komisiImports.companyId, companyId))
     .orderBy(desc(komisiImports.id))
     .limit(limit)
     .all();
 }
 
-export function getImport(db: DB, importId: number, status: RowStatus | 'all') {
+export function getImport(db: DB, companyId: number, importId: number, status: RowStatus | 'all') {
   const imp = db
     .select({ imp: komisiImports, importedBy: users.username })
     .from(komisiImports)
     .leftJoin(users, eq(users.id, komisiImports.importedBy))
-    .where(eq(komisiImports.id, importId))
+    .where(and(eq(komisiImports.id, importId), eq(komisiImports.companyId, companyId)))
     .get();
   if (!imp) return null;
 
@@ -166,19 +167,30 @@ export function getImport(db: DB, importId: number, status: RowStatus | 'all') {
 
 // ---------------------------------------------------------------- master tarif
 
-export function listCategoriesWithConversions(db: DB) {
-  const categories = db.select().from(komisiCategories).orderBy(asc(komisiCategories.code)).all();
-  const conversions = db.select().from(komisiUnitConversions).orderBy(asc(komisiUnitConversions.unit)).all();
+export function listCategoriesWithConversions(db: DB, companyId: number) {
+  const categories = db
+    .select()
+    .from(komisiCategories)
+    .where(eq(komisiCategories.companyId, companyId))
+    .orderBy(asc(komisiCategories.code))
+    .all();
+  const ids = new Set(categories.map((c) => c.id));
+  const conversions = db
+    .select()
+    .from(komisiUnitConversions)
+    .orderBy(asc(komisiUnitConversions.unit))
+    .all()
+    .filter((u) => ids.has(u.categoryId));
   return categories.map((c) => ({ ...c, conversions: conversions.filter((u) => u.categoryId === c.id) }));
 }
 
 // Kombinasi kategori/satuan di data faktur yang belum dikomisikan dan belum
 // punya tarif — ditampilkan di halaman master supaya mudah dilengkapi.
-export function listUnmatchedCategoryUnits(db: DB) {
+export function listUnmatchedCategoryUnits(db: DB, companyId: number) {
   return db
     .select({ category: komisiLines.category, unit: komisiLines.unit, lines: count() })
     .from(komisiLines)
-    .where(and(isNull(komisiLines.commissionRunId), sql`NOT ${hasRate}`))
+    .where(and(eq(komisiLines.companyId, companyId), isNull(komisiLines.commissionRunId), sql`NOT ${hasRate}`))
     .groupBy(komisiLines.category, komisiLines.unit)
     .orderBy(asc(komisiLines.category))
     .all();

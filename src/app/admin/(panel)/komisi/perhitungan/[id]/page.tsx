@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { Alert, Code, Page, Panel, Stat, StatStrip, Table, Td, Th, buttonClass } from '@/components/admin/ui';
-import { requireUser } from '@/lib/auth/session';
+import { requireCompany } from '@/lib/company';
 import { getDb } from '@/lib/db/client';
 import { formatDate, formatDateTime, formatNumber, formatRupiah } from '@/lib/format';
 import { getRun } from '@/lib/komisi/runs';
@@ -17,13 +17,13 @@ export default async function RunDetailPage({
   params: Promise<{ id: string }>;
   searchParams: Promise<{ baru?: string }>;
 }) {
-  await requireUser();
+  const { company } = await requireCompany();
   const { id } = await params;
   const { baru } = await searchParams;
   const runId = Number.parseInt(id, 10);
   if (!Number.isSafeInteger(runId)) notFound();
 
-  const data = getRun(getDb(), runId);
+  const data = getRun(getDb(), company.id, runId);
   if (!data) notFound();
   const { run, items, groups } = data;
   const isVoid = run.status === 'void';
@@ -33,7 +33,7 @@ export default async function RunDetailPage({
       title={run.label}
       description={
         <>
-          Perhitungan #{run.id} · dibuat {formatDateTime(run.createdAt)} oleh {run.createdByName ?? '–'}
+          {company.name} · Perhitungan #{run.id} · dibuat {formatDateTime(run.createdAt)} oleh {run.createdByName ?? '–'}
           {run.note && <> · {run.note}</>}
         </>
       }
@@ -42,8 +42,11 @@ export default async function RunDetailPage({
           <Link href="/admin/komisi/perhitungan/" className={buttonClass('ghost', 'sm')}>
             ‹ Perhitungan
           </Link>
-          <a href={`/admin/komisi/perhitungan/${run.id}/export/`} className={buttonClass('primary', 'sm')}>
-            Export Excel
+          <a href={`/admin/komisi/perhitungan/${run.id}/export/`} className={buttonClass('secondary', 'sm')}>
+            Excel
+          </a>
+          <a href={`/admin/komisi/perhitungan/${run.id}/pdf/`} target="_blank" rel="noopener" className={buttonClass('primary', 'sm')}>
+            Export PDF
           </a>
         </>
       }

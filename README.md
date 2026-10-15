@@ -33,12 +33,25 @@ docker logs dazytech-app 2>&1 | grep auth        # production (via SSM)
 Login pertama wajib ganti password. Alternatif: set `ADMIN_USERNAME` /
 `ADMIN_INITIAL_PASSWORD` sebelum start pertama.
 
+## Company
+
+Semua data komisi (faktur, import, perhitungan, master tarif) terpisah per
+**company**. Default: **Pangan** dan **Test** (migrasi `0002`; data lama masuk
+Pangan, Test dapat salinan master tarif).
+
+- Setelah login pilih company di `/admin/company/` (bisa tambah company, opsional
+  salin master tarif dari company lain). Ganti kapan saja lewat switcher di header.
+- Company aktif disimpan di cookie `dz_company`. Setiap form mutasi ikut mengirim
+  `companyId`; kalau company sudah diganti di tab lain, aksi ditolak
+  (`requireCompanyForAction`) supaya data tidak masuk ke company yang salah.
+- Kunci duplikat faktur unik **per company**.
+
 ## Modul komisi
 
 | Halaman | Isi |
 |---|---|
 | `/admin/komisi/` | Import Excel (cek dulu → import), riwayat import, data faktur + filter |
-| `/admin/komisi/perhitungan/` | Preview per tanggal cutoff → simpan & kunci, riwayat, export Excel, batalkan |
+| `/admin/komisi/perhitungan/` | Preview per tanggal cutoff → simpan & kunci, riwayat, export Excel/PDF, batalkan |
 | `/admin/komisi/master/` | Tarif per KATEGORI + konversi satuan (mis. 1 KTK = 5 PCS) |
 
 Aturan:
@@ -74,6 +87,12 @@ docker exec -e REAL_XLSX=/tmp/real.xlsx dazytech-dev npx vitest run tests/real-f
   Aman saat container dihapus/di-recreate. **Jangan pernah `docker compose down -v`.**
 - Migrasi skema jalan otomatis saat container start (`src/instrumentation.ts`).
   Ubah skema: edit `src/lib/db/schema.ts` → `npm run db:generate` → commit folder `drizzle/`.
+  SQLite tidak bisa `ADD COLUMN ... NOT NULL` tanpa default: migrasi seperti itu harus
+  ditulis manual dengan rebuild tabel (contoh: `drizzle/0002_companies.sql`). Foreign key
+  dimatikan selama migrasi lalu dicek (`runMigrations`); `tests/migration.test.ts` menguji data lama tetap utuh.
+- PDF laporan dibuat di server dengan `@react-pdf/renderer` (font Helvetica bawaan PDF).
+  Font standar pdfkit dimuat dinamis, jadi didaftarkan di `outputFileTracingIncludes`
+  (`next.config.mjs`) — tanpa itu PDF error 500 hanya di build standalone.
 - Hardening container: user non-root, filesystem read-only, `/tmp` noexec,
   `cap_drop: ALL`, `no-new-privileges`.
 

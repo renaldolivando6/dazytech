@@ -17,6 +17,7 @@
     "docker:preview": "docker compose -f docker-compose.dev.yml --profile preview up --build preview"
   },
   "dependencies": {
+    "@react-pdf/renderer": "^4.9.0",
     "@react-three/drei": "^10.5.1",
     "@react-three/fiber": "^9.2.0",
     "@types/three": "^0.178.1",

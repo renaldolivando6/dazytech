@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { Alert, Badge, Code, EmptyRow, Page, Panel, Stat, StatStrip, Table, Td, Th, buttonClass, cx, inputSmClass } from '@/components/admin/ui';
-import { requireUser } from '@/lib/auth/session';
+import { requireCompany } from '@/lib/company';
 import { getDb } from '@/lib/db/client';
 import { defaultCutoff, defaultRunLabel, formatDate, formatDateTime, formatNumber, formatRupiah, isIsoDate, jakartaToday } from '@/lib/format';
 import { listRuns, previewRun } from '@/lib/komisi/runs';
@@ -10,20 +10,20 @@ import { SaveRunForm } from './save-run-form';
 export const metadata: Metadata = { title: 'Perhitungan Komisi' };
 
 export default async function PerhitunganPage({ searchParams }: { searchParams: Promise<{ cutoff?: string }> }) {
-  await requireUser();
+  const { company } = await requireCompany();
   const { cutoff: rawCutoff } = await searchParams;
   const today = jakartaToday();
   const cutoff = rawCutoff && isIsoDate(rawCutoff) ? rawCutoff : defaultCutoff(today);
 
   const db = getDb();
-  const preview = previewRun(db, cutoff);
-  const runs = listRuns(db);
+  const preview = previewRun(db, company.id, cutoff);
+  const runs = listRuns(db, company.id);
   const noRateLines = preview.excluded.noRate.reduce((s, g) => s + g.lines, 0);
 
   return (
     <Page
       title="Perhitungan Komisi"
-      description={`Cutoff tiap tanggal 15 (default ${formatDate(defaultCutoff(today))}). Yang dihitung: faktur s/d tanggal cutoff, sudah lunas, dan belum pernah dikomisikan. Tarif = master tarif saat ini.`}
+      description={`${company.name} · Cutoff tiap tanggal 15 (default ${formatDate(defaultCutoff(today))}). Yang dihitung: faktur s/d tanggal cutoff, sudah lunas, dan belum pernah dikomisikan. Tarif = master tarif saat ini.`}
       actions={
         <form className="flex items-center gap-2">
           <label htmlFor="cutoff" className="whitespace-nowrap text-[12px] text-muted">
@@ -189,10 +189,13 @@ export default async function PerhitunganPage({ searchParams }: { searchParams: 
               <Th className="text-right">Total</Th>
               <Th>Status</Th>
               <Th>Dibuat</Th>
+              <Th className="text-right">
+                <span className="sr-only">Export</span>
+              </Th>
             </tr>
           </thead>
           <tbody>
-            {runs.length === 0 && <EmptyRow colSpan={7}>Belum ada perhitungan tersimpan.</EmptyRow>}
+            {runs.length === 0 && <EmptyRow colSpan={8}>Belum ada perhitungan tersimpan.</EmptyRow>}
             {runs.map((r) => (
               <tr key={r.id} className="hover:bg-pearl">
                 <Td>
@@ -207,6 +210,16 @@ export default async function PerhitunganPage({ searchParams }: { searchParams: 
                 <Td>{r.status === 'void' ? <Badge tone="red">Dibatalkan</Badge> : <Badge tone="green">Final</Badge>}</Td>
                 <Td className="whitespace-nowrap text-[12px] text-muted">
                   {formatDateTime(r.createdAt)} · {r.createdBy ?? '–'}
+                </Td>
+                <Td className="text-right">
+                  <a
+                    href={`/admin/komisi/perhitungan/${r.id}/pdf/`}
+                    target="_blank"
+                    rel="noopener"
+                    className={buttonClass('secondary', 'sm')}
+                  >
+                    PDF
+                  </a>
                 </Td>
               </tr>
             ))}

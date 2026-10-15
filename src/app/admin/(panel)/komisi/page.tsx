@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { Badge, Code, EmptyRow, Page, Pagination, Panel, Stat, StatStrip, Table, Tabs, Td, Th, buttonClass, searchInputClass } from '@/components/admin/ui';
-import { requireUser } from '@/lib/auth/session';
+import { requireCompany } from '@/lib/company';
 import { getDb } from '@/lib/db/client';
 import { formatDate, formatDateTime, formatNumber, formatRupiah, jakartaToday } from '@/lib/format';
 import { getOverview, LINE_FILTERS, listImports, listLines, type LineFilter } from '@/lib/komisi/queries';
@@ -22,16 +22,16 @@ const FILTER_LABEL: Record<LineFilter, string> = {
 type SearchParams = Promise<{ status?: string; q?: string; page?: string }>;
 
 export default async function KomisiPage({ searchParams }: { searchParams: SearchParams }) {
-  await requireUser();
+  const { company } = await requireCompany();
   const sp = await searchParams;
   const filter: LineFilter = (LINE_FILTERS as readonly string[]).includes(sp.status ?? '') ? (sp.status as LineFilter) : 'all';
   const q = (sp.q ?? '').slice(0, 100);
   const page = Math.max(1, Number.parseInt(sp.page ?? '1', 10) || 1);
 
   const db = getDb();
-  const overview = getOverview(db, jakartaToday());
-  const imports = listImports(db, 10);
-  const lines = listLines(db, { filter, q, page, pageSize: PAGE_SIZE });
+  const overview = getOverview(db, company.id, jakartaToday());
+  const imports = listImports(db, company.id, 10);
+  const lines = listLines(db, company.id, { filter, q, page, pageSize: PAGE_SIZE });
   const noRateLines = overview.noRate.reduce((s, g) => s + g.lines, 0);
 
   const hrefFor = (next: { status?: LineFilter; page?: number }) => {
@@ -47,7 +47,7 @@ export default async function KomisiPage({ searchParams }: { searchParams: Searc
   return (
     <Page
       title="Import & Data"
-      description="Import export Accurate, cek duplikat, dan pantau baris mana yang siap dihitung komisinya."
+      description={`${company.name} · Import export Accurate, cek duplikat, dan pantau baris mana yang siap dihitung komisinya.`}
       actions={
         <Link href="/admin/komisi/perhitungan/" className={buttonClass('primary', 'sm')}>
           Hitung komisi

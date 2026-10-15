@@ -1,3 +1,4 @@
+import { eq, inArray } from 'drizzle-orm';
 import { komisiCategories, komisiUnitConversions } from '@/lib/db/schema';
 import type { DB } from '@/lib/db/open';
 
@@ -13,9 +14,12 @@ export type RateEntry = {
 };
 export type RateTable = Map<string, RateEntry>;
 
-export function loadRateTable(db: DB): RateTable {
-  const categories = db.select().from(komisiCategories).all();
-  const conversions = db.select().from(komisiUnitConversions).all();
+export function loadRateTable(db: DB, companyId: number): RateTable {
+  const categories = db.select().from(komisiCategories).where(eq(komisiCategories.companyId, companyId)).all();
+  const ids = categories.map((c) => c.id);
+  const conversions = ids.length
+    ? db.select().from(komisiUnitConversions).where(inArray(komisiUnitConversions.categoryId, ids)).all()
+    : [];
 
   const table: RateTable = new Map();
   for (const c of categories) {

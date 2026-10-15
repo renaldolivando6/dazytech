@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { Alert, Page, Panel } from '@/components/admin/ui';
-import { requireUser } from '@/lib/auth/session';
+import { requireCompany } from '@/lib/company';
 import { getDb } from '@/lib/db/client';
 import { listCategoriesWithConversions, listUnmatchedCategoryUnits } from '@/lib/komisi/queries';
 import { MasterTable, type MasterCategory } from './master-table';
@@ -9,10 +9,10 @@ import { MasterTable, type MasterCategory } from './master-table';
 export const metadata: Metadata = { title: 'Master Tarif Komisi' };
 
 export default async function MasterPage({ searchParams }: { searchParams: Promise<{ code?: string; unit?: string }> }) {
-  await requireUser();
+  const { company } = await requireCompany();
   const sp = await searchParams;
   const db = getDb();
-  const categories: MasterCategory[] = listCategoriesWithConversions(db).map((c) => ({
+  const categories: MasterCategory[] = listCategoriesWithConversions(db, company.id).map((c) => ({
     id: c.id,
     code: c.code,
     label: c.label,
@@ -21,12 +21,12 @@ export default async function MasterPage({ searchParams }: { searchParams: Promi
     isActive: c.isActive,
     conversions: c.conversions.map((u) => ({ id: u.id, unit: u.unit, factor: u.factor })),
   }));
-  const unmatched = listUnmatchedCategoryUnits(db);
+  const unmatched = listUnmatchedCategoryUnits(db, company.id);
 
   return (
     <Page
       title="Master Tarif"
-      description="Perubahan tarif berlaku untuk perhitungan berikutnya; perhitungan yang sudah disimpan memakai snapshot tarif dan tidak berubah."
+      description={`${company.name} · Perubahan tarif berlaku untuk perhitungan berikutnya; perhitungan yang sudah disimpan memakai snapshot tarif dan tidak berubah.`}
     >
       {unmatched.length > 0 && (
         <Alert tone="amber" title="Ada data yang belum punya tarif">

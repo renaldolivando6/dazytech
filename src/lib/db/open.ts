@@ -28,6 +28,21 @@ export function openDatabase(file = databasePath()): DB {
   return drizzle(sqlite, { schema });
 }
 
-export function runMigrations(db: DB): void {
-  migrate(db, { migrationsFolder: MIGRATIONS_DIR });
+// Foreign key WAJIB mati selama migrasi: migrasi yang membangun ulang tabel
+// (drop + rename) akan memicu ON DELETE CASCADE / gagal FK kalau masih aktif.
+// PRAGMA ini tidak berlaku di dalam transaksi, jadi diset sebelum migrate()
+// (yang membungkus semua migrasi dalam satu transaksi). Setelahnya integritas
+// dicek ulang; kalau ada pelanggaran, start dibatalkan.
+export function runMigrations(db: DB, migrationsFolder = MIGRATIONS_DIR): void {
+  const sqlite = db.$client;
+  sqlite.pragma('foreign_keys = OFF');
+  try {
+    migrate(db, { migrationsFolder });
+    const violations = sqlite.pragma('foreign_key_check') as unknown[];
+    if (violations.length > 0) {
+      throw new Error(`Migrasi menghasilkan ${violations.length} pelanggaran foreign key: ${JSON.stringify(violations.slice(0, 5))}`);
+    }
+  } finally {
+    sqlite.pragma('foreign_keys = ON');
+  }
 }

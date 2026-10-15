@@ -1,6 +1,7 @@
 import ExcelJS from 'exceljs';
 import { NextResponse } from 'next/server';
 import { getCurrentUser } from '@/lib/auth/session';
+import { getCurrentCompany } from '@/lib/company';
 import { getDb } from '@/lib/db/client';
 import { formatDate } from '@/lib/format';
 import { getRun } from '@/lib/komisi/runs';
@@ -9,9 +10,11 @@ import { getRun } from '@/lib/komisi/runs';
 export async function GET(_req: Request, { params }: { params: Promise<{ id: string }> }) {
   const user = await getCurrentUser();
   if (!user || user.mustChangePassword) return new NextResponse('Unauthorized', { status: 401 });
+  const company = await getCurrentCompany();
+  if (!company) return new NextResponse('Pilih company dulu', { status: 409 });
 
   const runId = Number.parseInt((await params).id, 10);
-  const data = Number.isSafeInteger(runId) ? getRun(getDb(), runId) : null;
+  const data = Number.isSafeInteger(runId) ? getRun(getDb(), company.id, runId) : null;
   if (!data) return new NextResponse('Not found', { status: 404 });
   const { run, items, groups } = data;
 
@@ -23,7 +26,7 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
 
   const summary = wb.addWorksheet('Ringkasan');
   summary.addRow([run.label]).font = { bold: true, size: 14 };
-  summary.addRow([`Perhitungan #${run.id} · cutoff ${formatDate(run.cutoffDate)} · status ${run.status === 'void' ? 'DIBATALKAN' : 'final'}`]);
+  summary.addRow([`${company.name} · Perhitungan #${run.id} · cutoff ${formatDate(run.cutoffDate)} · status ${run.status === 'void' ? 'DIBATALKAN' : 'final'}`]);
   summary.addRow([]);
   summary.columns = [{ width: 22 }, { width: 10 }, { width: 14 }, { width: 10 }, { width: 10 }, { width: 14 }, { width: 16 }];
   const head = summary.addRow(['Kategori', 'Baris', 'Qty', 'Satuan', 'Konversi', 'Tarif', 'Komisi']);

@@ -39,22 +39,42 @@ export const sessions = sqliteTable(
   (t) => [index('sessions_user_idx').on(t.userId)],
 );
 
+// ---------------------------------------------------------------- company
+
+// Setiap data komisi (faktur, import, perhitungan, master tarif) milik satu
+// company. User memilih company aktif setelah login (cookie, lihat lib/company.ts).
+export const companies = sqliteTable('companies', {
+  id: integer('id').primaryKey({ autoIncrement: true }),
+  name: text('name').notNull().unique(),
+  createdAt: createdAt(),
+});
+
+const companyId = () =>
+  integer('company_id')
+    .notNull()
+    .references(() => companies.id);
+
 // ---------------------------------------------------------------- komisi: master tarif
 
-// Satu baris per nilai kolom KATEGORI di Excel Accurate.
-export const komisiCategories = sqliteTable('komisi_categories', {
-  id: integer('id').primaryKey({ autoIncrement: true }),
-  // Persis nilai kolom KATEGORI (dinormalisasi: huruf besar, spasi rapat).
-  code: text('code').notNull().unique(),
-  label: text('label').notNull(),
-  // Satuan yang menjadi dasar tarif, mis. BKS atau PCS.
-  baseUnit: text('base_unit').notNull(),
-  // Rupiah per 1 satuan dasar. Integer, tidak pernah float.
-  rate: integer('rate').notNull(),
-  isActive: integer('is_active', { mode: 'boolean' }).notNull().default(true),
-  createdAt: createdAt(),
-  updatedAt: updatedAt(),
-});
+// Satu baris per nilai kolom KATEGORI di Excel Accurate, per company.
+export const komisiCategories = sqliteTable(
+  'komisi_categories',
+  {
+    id: integer('id').primaryKey({ autoIncrement: true }),
+    companyId: companyId(),
+    // Persis nilai kolom KATEGORI (dinormalisasi: huruf besar, spasi rapat).
+    code: text('code').notNull(),
+    label: text('label').notNull(),
+    // Satuan yang menjadi dasar tarif, mis. BKS atau PCS.
+    baseUnit: text('base_unit').notNull(),
+    // Rupiah per 1 satuan dasar. Integer, tidak pernah float.
+    rate: integer('rate').notNull(),
+    isActive: integer('is_active', { mode: 'boolean' }).notNull().default(true),
+    createdAt: createdAt(),
+    updatedAt: updatedAt(),
+  },
+  (t) => [uniqueIndex('komisi_categories_company_code_uq').on(t.companyId, t.code)],
+);
 
 // Konversi satuan lain ke satuan dasar kategori, mis. SUPLEMEN: 1 KTK = 5 PCS.
 export const komisiUnitConversions = sqliteTable(
@@ -73,8 +93,11 @@ export const komisiUnitConversions = sqliteTable(
 
 // ---------------------------------------------------------------- komisi: import
 
-export const komisiImports = sqliteTable('komisi_imports', {
+export const komisiImports = sqliteTable(
+  'komisi_imports',
+  {
   id: integer('id').primaryKey({ autoIncrement: true }),
+  companyId: companyId(),
   fileName: text('file_name').notNull(),
   fileHash: text('file_hash').notNull(),
   importedBy: integer('imported_by').references(() => users.id, { onDelete: 'set null' }),
@@ -86,7 +109,9 @@ export const komisiImports = sqliteTable('komisi_imports', {
   rowsConflict: integer('rows_conflict').notNull().default(0),
   rowsError: integer('rows_error').notNull().default(0),
   createdAt: createdAt(),
-});
+  },
+  (t) => [index('komisi_imports_company_idx').on(t.companyId)],
+);
 
 // Jejak per baris Excel untuk setiap import: baru / duplikat / diperbarui / dst.
 export const komisiImportRows = sqliteTable(
@@ -116,8 +141,10 @@ export const komisiLines = sqliteTable(
   'komisi_lines',
   {
     id: integer('id').primaryKey({ autoIncrement: true }),
+    companyId: companyId(),
     // `NO INV|NAMA BARANG (dinormalisasi)|urutan kemunculan di faktur itu`.
-    lineKey: text('line_key').notNull().unique(),
+    // Unik per company: faktur yang sama di company lain = data lain.
+    lineKey: text('line_key').notNull(),
     invoiceNo: text('invoice_no').notNull(),
     invoiceDate: text('invoice_date').notNull(),
     customer: text('customer'),
@@ -144,16 +171,20 @@ export const komisiLines = sqliteTable(
     updatedAt: updatedAt(),
   },
   (t) => [
+    uniqueIndex('komisi_lines_company_key_uq').on(t.companyId, t.lineKey),
     index('komisi_lines_invoice_idx').on(t.invoiceNo),
     index('komisi_lines_run_idx').on(t.commissionRunId),
-    index('komisi_lines_pending_idx').on(t.commissionRunId, t.isUnpaid, t.invoiceDate),
+    index('komisi_lines_pending_idx').on(t.companyId, t.commissionRunId, t.isUnpaid, t.invoiceDate),
   ],
 );
 
 // ---------------------------------------------------------------- komisi: perhitungan
 
-export const komisiRuns = sqliteTable('komisi_runs', {
+export const komisiRuns = sqliteTable(
+  'komisi_runs',
+  {
   id: integer('id').primaryKey({ autoIncrement: true }),
+  companyId: companyId(),
   label: text('label').notNull(),
   cutoffDate: text('cutoff_date').notNull(),
   status: text('status', { enum: ['final', 'void'] })
@@ -167,7 +198,9 @@ export const komisiRuns = sqliteTable('komisi_runs', {
   voidedAt: integer('voided_at', { mode: 'timestamp_ms' }),
   voidedBy: integer('voided_by').references(() => users.id, { onDelete: 'set null' }),
   voidReason: text('void_reason'),
-});
+  },
+  (t) => [index('komisi_runs_company_idx').on(t.companyId)],
+);
 
 // Snapshot tarif per baris saat perhitungan dikunci. Mengubah master tarif
 // sesudahnya tidak mengubah perhitungan yang sudah ada.
@@ -193,6 +226,7 @@ export const komisiRunItems = sqliteTable(
 );
 
 export type User = typeof users.$inferSelect;
+export type Company = typeof companies.$inferSelect;
 export type KomisiLine = typeof komisiLines.$inferSelect;
 export type KomisiCategory = typeof komisiCategories.$inferSelect;
 export type KomisiRun = typeof komisiRuns.$inferSelect;

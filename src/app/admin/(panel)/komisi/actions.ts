@@ -2,7 +2,7 @@
 
 import { createHash } from 'node:crypto';
 import { revalidatePath } from 'next/cache';
-import { requireUser } from '@/lib/auth/session';
+import { requireCompanyForAction } from '@/lib/company';
 import { getDb } from '@/lib/db/client';
 import { ExcelFormatError, parseAccurateExcel, type ParseResult } from '@/lib/komisi/excel';
 import { commitImport, previewImport, type ImportPreview, type ImportSummary } from '@/lib/komisi/import';
@@ -37,20 +37,22 @@ async function readUpload(formData: FormData): Promise<Result<{ fileName: string
 
 // Langkah 1: cek file tanpa menyimpan apa pun.
 export async function previewImportAction(formData: FormData): Promise<Result<ImportPreview>> {
-  await requireUser();
+  const ctx = await requireCompanyForAction(formData);
+  if (!ctx.ok) return ctx;
   const upload = await readUpload(formData);
   if (!upload.ok) return upload;
-  return { ok: true, data: previewImport(getDb(), upload.data) };
+  return { ok: true, data: previewImport(getDb(), { ...upload.data, companyId: ctx.company.id }) };
 }
 
 // Langkah 2: simpan. File dikirim ulang dan diklasifikasi ulang di dalam
 // transaksi, jadi hasil tetap benar walau data berubah sejak preview.
 export async function commitImportAction(formData: FormData): Promise<Result<{ importId: number; summary: ImportSummary }>> {
-  const user = await requireUser();
+  const ctx = await requireCompanyForAction(formData);
+  if (!ctx.ok) return ctx;
   const upload = await readUpload(formData);
   if (!upload.ok) return upload;
 
-  const result = commitImport(getDb(), { ...upload.data, userId: user.id });
+  const result = commitImport(getDb(), { ...upload.data, companyId: ctx.company.id, userId: ctx.user.id });
   revalidatePath('/admin/komisi', 'layout');
   return { ok: true, data: result };
 }
