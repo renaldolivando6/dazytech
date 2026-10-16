@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import { Badge, Page, Panel, cx } from '@/components/admin/ui';
-import { requireUser } from '@/lib/auth/session';
+import { requireApp } from '@/lib/auth/session';
 import { listCompanies } from '@/lib/companies';
 import { getCurrentCompany } from '@/lib/company';
 import { getDb } from '@/lib/db/client';
@@ -11,7 +11,7 @@ import { CreateCompanyForm } from './create-form';
 export const metadata: Metadata = { title: 'Pilih Company' };
 
 export default async function CompanyPage({ searchParams }: { searchParams: Promise<{ next?: string }> }) {
-  await requireUser();
+  await requireApp('komisi');
   const { next } = await searchParams;
   const current = await getCurrentCompany();
   const companies = listCompanies(getDb());
@@ -19,9 +19,11 @@ export default async function CompanyPage({ searchParams }: { searchParams: Prom
   return (
     <Page
       title={current ? 'Company' : 'Pilih company'}
+      back={{ href: '/admin/', label: 'Portal' }}
+      narrow
       description="Data faktur, perhitungan, dan master tarif terpisah per company. Pilih company yang mau dikerjakan."
     >
-      <div className="max-w-2xl space-y-6">
+      <div className="space-y-6">
         <Panel flush>
           <ul>
             {companies.map((c) => {

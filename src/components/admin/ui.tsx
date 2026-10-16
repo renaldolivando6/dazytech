@@ -52,28 +52,51 @@ export const labelClass = 'mb-1 block text-[12px] text-muted';
 // ---------------------------------------------------------------- halaman
 
 // Sub-nav frosted (judul + aksi) yang menempel di bawah nav global, lalu isi.
+// `back`: tautan kembali di kiri judul (halaman induk / portal).
+// `narrow`: judul dan isi dalam satu kolom 720px di tengah, untuk halaman form.
 export function Page({
   title,
   description,
   actions,
+  back,
+  narrow,
   children,
 }: {
   title: ReactNode;
   description?: ReactNode;
   actions?: ReactNode;
+  back?: { href: string; label: string };
+  narrow?: boolean;
   children: ReactNode;
 }) {
+  const width = narrow ? 'max-w-[720px]' : 'max-w-[1440px]';
   // Dibungkus <div> biasa: Next.js men-scroll elemen pertama halaman ke atas saat
   // navigasi, dan melewatinya (dengan warning di console dev) kalau elemen itu sticky.
   return (
     <div>
       <div className="sticky top-11 z-20 border-b border-black/[0.06] bg-parchment/80 backdrop-blur-xl backdrop-saturate-[1.8]">
-        <div className="mx-auto flex min-h-[52px] max-w-[1440px] flex-wrap items-center justify-between gap-x-6 gap-y-2 px-4 py-2 sm:px-8">
-          <h1 className="text-[21px] font-semibold leading-[1.19] tracking-[-0.012em]">{title}</h1>
+        <div className={cx('mx-auto flex min-h-[52px] flex-wrap items-center justify-between gap-x-6 gap-y-2 px-4 py-2 sm:px-8', width)}>
+          <div className="flex min-w-0 items-center gap-3">
+            {back && (
+              <>
+                <Link
+                  href={back.href}
+                  className="-ml-1.5 inline-flex shrink-0 items-center gap-0.5 rounded-md px-1.5 py-1 text-[14px] text-accent transition-colors hover:bg-black/[0.04]"
+                >
+                  <svg aria-hidden width="14" height="14" viewBox="0 0 14 14">
+                    <path d="M8.75 3 4.75 7l4 4" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                  {back.label}
+                </Link>
+                <span aria-hidden className="h-5 w-px shrink-0 bg-black/[0.12]" />
+              </>
+            )}
+            <h1 className="truncate text-[21px] font-semibold leading-[1.19] tracking-[-0.012em]">{title}</h1>
+          </div>
           {actions && <div className="flex flex-wrap items-center gap-2">{actions}</div>}
         </div>
       </div>
-      <main className="mx-auto max-w-[1440px] px-4 pb-16 pt-6 sm:px-8">
+      <main className={cx('mx-auto px-4 pb-16 pt-6 sm:px-8', width)}>
         {description && <p className="-mt-1 mb-6 max-w-3xl text-[13px] text-muted">{description}</p>}
         <div className="space-y-6">{children}</div>
       </main>

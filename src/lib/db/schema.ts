@@ -1,4 +1,4 @@
-import { index, integer, real, sqliteTable, text, uniqueIndex } from 'drizzle-orm/sqlite-core';
+import { index, integer, primaryKey, real, sqliteTable, text, uniqueIndex } from 'drizzle-orm/sqlite-core';
 
 // Semua waktu disimpan sebagai epoch milidetik (UTC). Tanggal bisnis dari Excel
 // (tanggal faktur, tanggal cutoff) disimpan sebagai teks 'YYYY-MM-DD' supaya
@@ -19,9 +19,26 @@ export const users = sqliteTable('users', {
   passwordHash: text('password_hash').notNull(),
   // true untuk akun dengan password awal hasil generate: wajib diganti dulu.
   mustChangePassword: integer('must_change_password', { mode: 'boolean' }).notNull().default(false),
+  // admin = semua aplikasi + kelola pengguna. member = hanya aplikasi di user_apps.
+  role: text('role', { enum: ['admin', 'member'] })
+    .notNull()
+    .default('member'),
   createdAt: createdAt(),
   updatedAt: updatedAt(),
 });
+
+// Aplikasi internal yang boleh dibuka seorang member (daftar aplikasi: lib/auth/apps.ts).
+export const userApps = sqliteTable(
+  'user_apps',
+  {
+    userId: integer('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    app: text('app', { enum: ['website', 'komisi'] }).notNull(),
+    createdAt: createdAt(),
+  },
+  (t) => [primaryKey({ columns: [t.userId, t.app] })],
+);
 
 export const sessions = sqliteTable(
   'sessions',
@@ -225,8 +242,75 @@ export const komisiRunItems = sqliteTable(
   (t) => [index('komisi_run_items_run_idx').on(t.runId), index('komisi_run_items_line_idx').on(t.lineId)],
 );
 
+// ---------------------------------------------------------------- website: artikel
+
+// Artikel blog untuk SEO, ditulis dari /admin/artikel. Isi disimpan sebagai
+// Markdown dan dirender saat halaman dibuka (lib/articles/markdown.ts).
+// Tidak terikat company: milik website Dazytech, bukan data komisi.
+export const articles = sqliteTable(
+  'articles',
+  {
+    id: integer('id').primaryKey({ autoIncrement: true }),
+    slug: text('slug').notNull().unique(),
+    title: text('title').notNull(),
+    // Ringkasan 1–2 kalimat: dipakai sebagai meta description & di daftar artikel.
+    excerpt: text('excerpt').notNull().default(''),
+    content: text('content').notNull().default(''),
+    status: text('status', { enum: ['draft', 'published'] })
+      .notNull()
+      .default('draft'),
+    // Diisi saat pertama kali terbit; tidak berubah walau artikel diedit lagi.
+    publishedAt: integer('published_at', { mode: 'timestamp_ms' }),
+    authorId: integer('author_id').references(() => users.id, { onDelete: 'set null' }),
+    createdAt: createdAt(),
+    updatedAt: updatedAt(),
+  },
+  (t) => [index('articles_status_published_idx').on(t.status, t.publishedAt)],
+);
+
+// ---------------------------------------------------------------- website: leads
+
+// Isian form kontak di halaman utama.
+export const leads = sqliteTable(
+  'leads',
+  {
+    id: integer('id').primaryKey({ autoIncrement: true }),
+    name: text('name').notNull(),
+    // Nomor WhatsApp atau email, apa adanya dari pengunjung.
+    contact: text('contact').notNull(),
+    service: text('service'),
+    message: text('message').notNull().default(''),
+    status: text('status', { enum: ['new', 'contacted', 'closed'] })
+      .notNull()
+      .default('new'),
+    ipAddress: text('ip_address'),
+    userAgent: text('user_agent'),
+    createdAt: createdAt(),
+    updatedAt: updatedAt(),
+  },
+  (t) => [index('leads_status_created_idx').on(t.status, t.createdAt)],
+);
+
+// ---------------------------------------------------------------- website: klik tombol
+
+// Klik tombol WhatsApp di situs publik, per jalur (ERP / website / umum).
+// Sengaja tanpa IP atau data pengunjung: hanya untuk menghitung minat.
+export const ctaClicks = sqliteTable(
+  'cta_clicks',
+  {
+    id: integer('id').primaryKey({ autoIncrement: true }),
+    cta: text('cta', { enum: ['wa_erp', 'wa_website', 'wa_general'] }).notNull(),
+    locale: text('locale', { enum: ['id', 'en'] }).notNull(),
+    path: text('path').notNull(),
+    createdAt: createdAt(),
+  },
+  (t) => [index('cta_clicks_created_idx').on(t.createdAt)],
+);
+
 export type User = typeof users.$inferSelect;
 export type Company = typeof companies.$inferSelect;
 export type KomisiLine = typeof komisiLines.$inferSelect;
 export type KomisiCategory = typeof komisiCategories.$inferSelect;
 export type KomisiRun = typeof komisiRuns.$inferSelect;
+export type Article = typeof articles.$inferSelect;
+export type Lead = typeof leads.$inferSelect;

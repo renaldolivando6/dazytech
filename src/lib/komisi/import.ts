@@ -92,7 +92,7 @@ function infoChanged(old: KomisiLine, line: ParsedLine): boolean {
 
 function rateWarning(rates: RateTable, line: ParsedLine): string | null {
   const r = resolveCommission(rates, line);
-  return r.ok ? null : `${r.message} — baris tetap disimpan, tapi tidak ikut dihitung sampai tarifnya ditambahkan.`;
+  return r.ok ? null : `${r.message}. Baris tetap disimpan, tapi tidak ikut dihitung sampai tarifnya ditambahkan.`;
 }
 
 function plan(db: DB, companyId: number, parsed: ParseResult): Plan {
@@ -135,13 +135,13 @@ function plan(db: DB, companyId: number, parsed: ParseResult): Plan {
           ? {
               ...base,
               status: 'conflict',
-              message: `Sudah dikomisikan di perhitungan #${old.commissionRunId}, tapi data di file berbeda (${diffs.join(', ')}). Tidak diubah — cek manual.`,
+              message: `Sudah dikomisikan di perhitungan #${old.commissionRunId}, tapi data di file berbeda (${diffs.join(', ')}). Tidak diubah, cek manual.`,
               warning: null,
             }
           : {
               ...base,
               status: 'locked',
-              message: `Duplikat — sudah dikomisikan di perhitungan #${old.commissionRunId}.`,
+              message: `Duplikat: sudah dikomisikan di perhitungan #${old.commissionRunId}.`,
               warning: null,
             },
       );
@@ -163,7 +163,7 @@ function plan(db: DB, companyId: number, parsed: ParseResult): Plan {
       continue;
     }
 
-    rows.push({ ...base, status: 'duplicate', message: 'Duplikat — sudah ada dari import sebelumnya.', warning: null });
+    rows.push({ ...base, status: 'duplicate', message: 'Duplikat: sudah ada dari import sebelumnya.', warning: null });
   }
 
   for (const e of parsed.errors) {

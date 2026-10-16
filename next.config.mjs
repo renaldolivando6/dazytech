@@ -1,8 +1,8 @@
 /** @type {import('next').NextConfig} */
 
 // Header keamanan untuk semua halaman (compro + /admin).
-// CSP sengaja belum dipasang: halaman compro memuat three.js/framer-motion dan
-// butuh pengujian sendiri sebelum dikunci.
+// CSP sengaja belum dipasang: halaman compro memakai framer-motion dan JSON-LD
+// inline, butuh pengujian sendiri sebelum dikunci.
 const securityHeaders = [
   { key: 'X-Frame-Options', value: 'DENY' },
   { key: 'X-Content-Type-Options', value: 'nosniff' },

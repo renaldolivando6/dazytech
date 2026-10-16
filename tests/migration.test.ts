@@ -80,3 +80,24 @@ describe('migrasi 0002 (multi-company)', () => {
     expect(sqlite.pragma('foreign_key_check')).toEqual([]);
   });
 });
+
+describe('migrasi 0004 (peran & akses aplikasi)', () => {
+  it('user yang sudah ada tetap admin; user baru default member', () => {
+    const db = openDatabase(':memory:');
+    runMigrations(db, migrationsUpTo(4)); // sebelum kolom role
+    const sqlite = db.$client;
+    const now = Date.now();
+    sqlite.prepare("INSERT INTO users (username, password_hash, created_at, updated_at) VALUES ('admin', 'x', ?, ?)").run(now, now);
+
+    runMigrations(db);
+
+    expect(sqlite.prepare("SELECT role FROM users WHERE username = 'admin'").get()).toEqual({ role: 'admin' });
+    sqlite.prepare("INSERT INTO users (username, password_hash, created_at, updated_at) VALUES ('okta', 'x', ?, ?)").run(now, now);
+    expect(sqlite.prepare("SELECT role FROM users WHERE username = 'okta'").get()).toEqual({ role: 'member' });
+
+    // Akses ikut terhapus bersama user-nya.
+    sqlite.prepare("INSERT INTO user_apps (user_id, app, created_at) SELECT id, 'komisi', ? FROM users WHERE username = 'okta'").run(now);
+    sqlite.prepare("DELETE FROM users WHERE username = 'okta'").run();
+    expect(sqlite.prepare('SELECT COUNT(*) n FROM user_apps').get()).toEqual({ n: 0 });
+  });
+});

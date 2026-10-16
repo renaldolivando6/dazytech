@@ -111,7 +111,7 @@ function CommissionReport({ data, companyName, printedAt }: { data: RunData; com
   const isVoid = run.status === 'void';
 
   return (
-    <Document title={`${run.label} — ${companyName}`} author="Dazytech" creator="Dazytech Commission Engine">
+    <Document title={`${run.label} · ${companyName}`} author="Dazytech" creator="Dazytech Commission Engine">
       <Page size="A4" style={s.page}>
         {/* Header */}
         <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
@@ -136,7 +136,7 @@ function CommissionReport({ data, companyName, printedAt }: { data: RunData; com
         {isVoid && (
           <Text style={s.voidBanner}>
             Perhitungan ini dibatalkan{run.voidedAt ? ` pada ${formatDateTime(run.voidedAt)}` : ''}
-            {run.voidedByName ? ` oleh ${run.voidedByName}` : ''} — alasan: {run.voidReason}. Dokumen hanya arsip, bukan dasar pembayaran.
+            {run.voidedByName ? ` oleh ${run.voidedByName}` : ''}. Alasan: {run.voidReason}. Dokumen hanya arsip, bukan dasar pembayaran.
           </Text>
         )}
 

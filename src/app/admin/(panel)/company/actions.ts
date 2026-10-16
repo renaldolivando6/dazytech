@@ -6,13 +6,13 @@ import { redirect } from 'next/navigation';
 import { z } from 'zod';
 import { fieldErrorsOf, submittedValues, type ActionState } from '@/lib/action-result';
 import { safeAdminPath } from '@/lib/auth/constants';
-import { requireUser } from '@/lib/auth/session';
+import { requireApp } from '@/lib/auth/session';
 import { CompanyError, createCompany, findCompany } from '@/lib/companies';
 import { COMPANY_COOKIE, companyCookieOptions } from '@/lib/company';
 import { getDb } from '@/lib/db/client';
 
 export async function selectCompanyAction(formData: FormData): Promise<void> {
-  await requireUser();
+  await requireApp('komisi');
   const id = Number.parseInt(String(formData.get('id') ?? ''), 10);
   const company = Number.isSafeInteger(id) ? findCompany(getDb(), id) : null;
   if (!company) redirect('/admin/company/');
@@ -30,7 +30,7 @@ const createSchema = z.object({
 });
 
 export async function createCompanyAction(_prev: ActionState, formData: FormData): Promise<ActionState> {
-  await requireUser();
+  await requireApp('komisi');
   const values = submittedValues(formData, ['name', 'copyRatesFrom']);
   const parsed = createSchema.safeParse(Object.fromEntries(formData));
   if (!parsed.success) return { ok: false, error: 'Periksa kembali isian.', fieldErrors: fieldErrorsOf(parsed.error.issues), values };

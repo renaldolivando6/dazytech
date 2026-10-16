@@ -47,6 +47,7 @@ export default async function KomisiPage({ searchParams }: { searchParams: Searc
   return (
     <Page
       title="Import & Data"
+      back={{ href: '/admin/', label: 'Portal' }}
       description={`${company.name} · Import export Accurate, cek duplikat, dan pantau baris mana yang siap dihitung komisinya.`}
       actions={
         <Link href="/admin/komisi/perhitungan/" className={buttonClass('primary', 'sm')}>

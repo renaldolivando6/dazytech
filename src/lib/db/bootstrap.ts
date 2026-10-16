@@ -17,7 +17,7 @@ export async function bootstrapDatabase(db: DB): Promise<void> {
   const password = fromEnv || generatePassword();
 
   db.insert(users)
-    .values({ username, passwordHash: await hashPassword(password), mustChangePassword: true })
+    .values({ username, passwordHash: await hashPassword(password), mustChangePassword: true, role: 'admin' })
     .run();
 
   // Dicetak SEKALI ke log container. Wajib diganti saat login pertama.

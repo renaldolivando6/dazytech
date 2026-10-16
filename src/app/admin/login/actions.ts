@@ -8,7 +8,6 @@ import { safeAdminPath } from '@/lib/auth/constants';
 import { verifyAgainstDummy, verifyPassword } from '@/lib/auth/password';
 import { clearLoginFailures, loginBlockedFor, recordLoginFailure } from '@/lib/auth/rate-limit';
 import { clientIp, createSession } from '@/lib/auth/session';
-import { getCurrentCompany } from '@/lib/company';
 import { getDb } from '@/lib/db/client';
 import { users } from '@/lib/db/schema';
 
@@ -18,18 +17,20 @@ const schema = z.object({
   next: z.string().optional(),
 });
 
-const INVALID = 'Username atau password salah.';
+// Halaman login berbahasa Inggris (lihat CLAUDE.md), begitu juga pesannya.
+const INVALID = 'Incorrect username or password.';
 
 export async function loginAction(_prev: ActionState, formData: FormData): Promise<ActionState> {
   const values = submittedValues(formData, ['username']);
   const parsed = schema.safeParse(Object.fromEntries(formData));
-  if (!parsed.success) return { ok: false, error: 'Isi username dan password.', values };
+  if (!parsed.success) return { ok: false, error: 'Enter your username and password.', values };
   const { username, password, next } = parsed.data;
 
   const ip = await clientIp();
   const waitMs = loginBlockedFor(ip, username);
   if (waitMs > 0) {
-    return { ok: false, error: `Terlalu banyak percobaan gagal. Coba lagi dalam ${Math.ceil(waitMs / 60000)} menit.`, values };
+    const minutes = Math.ceil(waitMs / 60000);
+    return { ok: false, error: `Too many failed attempts. Try again in ${minutes} minute${minutes === 1 ? '' : 's'}.`, values };
   }
 
   const user = getDb().select().from(users).where(eq(users.username, username)).get();
@@ -42,8 +43,6 @@ export async function loginAction(_prev: ActionState, formData: FormData): Promi
   clearLoginFailures(ip, username);
   await createSession(user.id);
   if (user.mustChangePassword) redirect('/admin/akun/?wajib=1');
-  const target = safeAdminPath(next) ?? '/admin/komisi/';
-  // Belum pernah memilih company (atau company-nya sudah tidak ada): pilih dulu.
-  if (!(await getCurrentCompany())) redirect(`/admin/company/?next=${encodeURIComponent(target)}`);
-  redirect(target);
+  // Default ke portal. Company baru ditanyakan saat masuk aplikasi Komisi (requireCompany).
+  redirect(safeAdminPath(next) ?? '/admin/');
 }

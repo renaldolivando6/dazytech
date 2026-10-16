@@ -1,5 +1,4 @@
 import type { Metadata } from 'next';
-import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { Alert, Code, Page, Panel, Stat, StatStrip, Table, Td, Th, buttonClass } from '@/components/admin/ui';
 import { requireCompany } from '@/lib/company';
@@ -31,6 +30,7 @@ export default async function RunDetailPage({
   return (
     <Page
       title={run.label}
+      back={{ href: '/admin/komisi/perhitungan/', label: 'Perhitungan' }}
       description={
         <>
           {company.name} · Perhitungan #{run.id} · dibuat {formatDateTime(run.createdAt)} oleh {run.createdByName ?? '–'}
@@ -39,9 +39,6 @@ export default async function RunDetailPage({
       }
       actions={
         <>
-          <Link href="/admin/komisi/perhitungan/" className={buttonClass('ghost', 'sm')}>
-            ‹ Perhitungan
-          </Link>
           <a href={`/admin/komisi/perhitungan/${run.id}/export/`} className={buttonClass('secondary', 'sm')}>
             Excel
           </a>
@@ -58,7 +55,7 @@ export default async function RunDetailPage({
       )}
       {isVoid && (
         <Alert tone="red" title="Perhitungan ini sudah dibatalkan">
-          {run.voidedAt && formatDateTime(run.voidedAt)} oleh {run.voidedByName ?? '–'} — alasan: {run.voidReason}. Baris-barisnya
+          {run.voidedAt && formatDateTime(run.voidedAt)} oleh {run.voidedByName ?? '-'}. Alasan: {run.voidReason}. Baris-barisnya
           sudah dilepas dan bisa dihitung ulang. Data di bawah hanya arsip.
         </Alert>
       )}

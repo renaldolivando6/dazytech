@@ -33,6 +33,19 @@ docker logs dazytech-app 2>&1 | grep auth        # production (via SSM)
 Login pertama wajib ganti password. Alternatif: set `ADMIN_USERNAME` /
 `ADMIN_INITIAL_PASSWORD` sebelum start pertama.
 
+## Portal & akses
+
+Login (`/admin/login/`) berlaku untuk semua tim internal. Setelah login masuk ke
+**portal** `/admin/` yang berisi aplikasi: **Website** (artikel & leads) dan **Komisi**.
+
+- Peran **admin**: semua aplikasi + kelola pengguna di `/admin/pengguna/`.
+- Peran **anggota**: hanya aplikasi yang dicentang (tabel `user_apps`). Aplikasi tanpa
+  akses tetap tampil di portal tapi terkunci; membuka URL-nya langsung dikembalikan ke portal.
+- Tambah pengguna (mis. `okta` dengan akses Komisi saja) dari `/admin/pengguna/`.
+  Password awal dibuat otomatis, tampil sekali, dan wajib diganti saat login pertama.
+- Menambah aplikasi baru: `src/lib/auth/apps.ts`, enum `user_apps.app` di
+  `src/lib/db/schema.ts`, dan menu di `src/app/admin/(panel)/nav.tsx`.
+
 ## Company
 
 Semua data komisi (faktur, import, perhitungan, master tarif) terpisah per
@@ -75,6 +88,50 @@ Uji dengan file Accurate asli (tidak di-commit, berisi data pelanggan):
 docker cp "file.xlsx" dazytech-dev:/tmp/real.xlsx
 docker exec -e REAL_XLSX=/tmp/real.xlsx dazytech-dev npx vitest run tests/real-file.test.ts
 ```
+
+## Halaman utama (compro)
+
+Gaya visual mengikuti design system Apple (`awesome-design-md/apple/DESIGN.md`),
+token warnanya sama dengan `/admin` (`src/app/globals.css`). Ganti warna aksi
+(sekarang biru) cukup di tiga `--color-accent*`.
+
+- Dua bahasa: Indonesia di `/` (default) dan Inggris di `/en/`, dengan hreflang,
+  canonical, dan sitemap. Semua teks ada di `src/i18n/id.ts` dan `src/i18n/en.ts`;
+  kontak & nomor WhatsApp di `src/components/site/content.ts`.
+- Susunan: hero (maskot 3D) → contoh alur ERP (tab) → layanan & biaya → contoh
+  website → pengalaman → cara kerja → FAQ → kontak.
+- Ilustrasi dibuat dengan kode (bukan gambar), datanya fiktif:
+  `erp-demo.tsx` (demo ERP interaktif: pesanan → alokasi stok → surat jalan → tagihan),
+  `mockups.tsx` (bingkai aplikasi desktop), `cards.tsx` (kartu versi HP & kartu
+  "pesanan terhubung" cadangan hero), `websites.tsx` (konsep website desktop + HP).
+- Model 3D hero: `public/models/doggy.glb` (dioptimasi dari 11,5 MB → 200 KB:
+  simplify 15 ribu segitiga, normal halus, tekstur WebP 1024, meshopt). Viewer di
+  `model-stage.tsx`; tukar ke kartu pesanan lewat `HERO_VISUAL` di `home.tsx`.
+- Kebijakan Privasi & Syarat Layanan dua bahasa (`/privacy-policy/`,
+  `/terms-of-service/`, `/en/...`): isi di `src/i18n/legal.ts`, tampilan di
+  `legal-page.tsx`.
+- Pratinjau saat link dibagikan (og:image, 1200×630): `public/og/dazytech-{id,en}.png`.
+  Setiap halaman publik mengisi metadata share lewat `shareMetadata()` (`src/lib/seo.ts`),
+  karena openGraph milik halaman menimpa (tidak menggabung) milik layout. Buat ulang
+  gambarnya kalau headline hero berubah.
+- Halaman utama tetap statis. Artikel terbaru di menu samping diambil lewat
+  `/api/articles/`; form kontak memakai server action (`src/app/actions.ts`).
+- Klik tombol WhatsApp dicatat per jalur (`data-cta`: `wa_erp`, `wa_website`,
+  `wa_general`) ke tabel `cta_clicks` lewat `/api/track/`, tanpa IP/data pengunjung.
+  Ringkasan 30 hari tampil di `/admin/leads/`.
+
+## Artikel & leads
+
+| Halaman | Isi |
+|---|---|
+| `/admin/artikel/` | Tulis artikel (Markdown + toolbar + pratinjau), draft / terbit, slug & meta description |
+| `/admin/leads/` | Isian form kontak halaman utama, status Baru → Dihubungi → Selesai |
+| `/artikel/`, `/artikel/<slug>/` | Halaman publik; dirender per request, masuk `sitemap.xml` otomatis |
+
+- Tidak terikat company (beda dengan data komisi).
+- Markdown dirender dengan `html: false`: tag HTML mentah di isi artikel tampil
+  sebagai teks, link `javascript:` ditolak.
+- Form kontak: honeypot + maks 5 kiriman per IP per jam (di memori proses).
 
 ## Production
 

@@ -41,6 +41,6 @@ export async function changePasswordAction(_prev: ActionState, formData: FormDat
   // Sesi di perangkat lain ikut keluar.
   await destroyOtherSessions(user.id);
 
-  if (user.mustChangePassword) redirect('/admin/komisi/');
+  if (user.mustChangePassword) redirect('/admin/');
   return { ok: true, message: 'Password berhasil diganti.' };
 }

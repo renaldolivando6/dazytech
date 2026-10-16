@@ -2,7 +2,7 @@ import 'server-only';
 import { cache } from 'react';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
-import { requireUser, type SessionUser } from '@/lib/auth/session';
+import { requireApp, requireUser, type SessionUser } from '@/lib/auth/session';
 import { findCompany } from '@/lib/companies';
 import { getDb } from '@/lib/db/client';
 import type { Company } from '@/lib/db/schema';
@@ -27,9 +27,9 @@ export const getCurrentCompany = cache(async (): Promise<Company | null> => {
   return Number.isSafeInteger(id) ? findCompany(getDb(), id) : null;
 });
 
-// Penjaga halaman: wajib login DAN sudah memilih company.
+// Penjaga halaman: wajib login, punya akses aplikasi Komisi, DAN sudah memilih company.
 export async function requireCompany(): Promise<{ user: SessionUser; company: Company }> {
-  const user = await requireUser();
+  const user = await requireApp('komisi');
   const company = await getCurrentCompany();
   if (!company) redirect('/admin/company/');
   return { user, company };
@@ -42,6 +42,7 @@ export async function requireCompanyForAction(
   formData: FormData,
 ): Promise<{ ok: true; user: SessionUser; company: Company } | { ok: false; error: string }> {
   const user = await requireUser();
+  if (!user.apps.includes('komisi')) return { ok: false, error: 'Akun ini tidak punya akses ke aplikasi Komisi.' };
   const company = await getCurrentCompany();
   if (!company) return { ok: false, error: 'Pilih company dulu.' };
   if (String(formData.get('companyId') ?? '') !== String(company.id)) {

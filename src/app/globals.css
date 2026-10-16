@@ -5,16 +5,18 @@
   --foreground: #171717;
 }
 
+/* Stack font ala DESIGN.md Apple: di Mac/iOS -apple-system = SF Pro asli,
+   di platform lain Inter (dimuat lewat next/font di layout root). */
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: -apple-system, BlinkMacSystemFont, var(--font-inter), "Segoe UI", system-ui, sans-serif;
 }
 
-/* Token area /admin — diadaptasi dari design system Apple
+/* Token bersama compro + /admin, diadaptasi dari design system Apple
    (awesome-design-md/apple/DESIGN.md): satu warna aksi (Action Blue),
-   ink near-black, canvas parchment, hairline tanpa bayangan. */
+   ink near-black, canvas parchment, hairline tanpa bayangan.
+   Ganti warna aksi = ubah tiga --color-accent* di bawah. */
 @theme {
   --color-ink: #1d1d1f;
   --color-ink-80: #333333;
@@ -26,7 +28,14 @@
   --color-divider: #f0f0f0;
   --color-accent: #0066cc;
   --color-accent-focus: #0071e3;
-  --color-accent-hover: #0077ed;
+  /* Hover lebih gelap dari dasar: teks putih tetap ≥ 4,5:1 (WCAG AA). */
+  --color-accent-hover: #0058b0;
+  /* Varian link di atas tile gelap (Sky Link Blue). */
+  --color-accent-on-dark: #2997ff;
+  /* Tile gelap compro; beda tipis supaya dua tile gelap bertumpuk tetap terpisah. */
+  --color-tile: #272729;
+  --color-tile-2: #2a2a2c;
+  --color-tile-3: #252527;
   /* Warna status sistem Apple — hanya untuk titik indikator kecil. */
   --color-status-green: #34c759;
   --color-status-orange: #ff9f0a;
@@ -49,8 +58,209 @@
   }
 }
 
+/* Stack ditulis langsung (bukan var(--font-sans)): --font-inter dipasang di
+   <body> oleh next/font, jadi harus di-resolve di sini, bukan di :root. */
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, var(--font-inter), "Segoe UI", system-ui, sans-serif;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+/* Menu samping (<dialog>) terbuka: halaman di belakangnya tidak ikut ter-scroll. */
+html:has(dialog[data-site-drawer][open]) {
+  overflow: hidden;
+}
+
+/* ---------------------------------------------------------------- compro: animasi
+
+   Muncul saat di-scroll, murni CSS (scroll-driven animation). Browser yang
+   belum mendukung, atau pengguna yang mematikan animasi, langsung melihat
+   konten tanpa efek. Tidak ada konten yang tersembunyi menunggu JavaScript. */
+@keyframes dz-reveal {
+  from {
+    opacity: 0;
+    transform: translateY(40px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* Langkah kartu "pesanan terhubung" muncul berurutan; ilustrasi tab memudar masuk.
+   Dipakai lewat kelas motion-safe:, jadi mati untuk prefers-reduced-motion. */
+@keyframes dz-step {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes dz-fade {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.985);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* Nilai yang berubah di demo ERP disorot sebentar. */
+@keyframes dz-flash {
+  0%,
+  35% {
+    background-color: rgb(0 102 204 / 0.18);
+  }
+  100% {
+    background-color: transparent;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  @supports (animation-timeline: view()) {
+    .reveal {
+      animation: dz-reveal linear both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 60%;
+    }
+  }
+}
+
+/* Menu samping: geser masuk dari kanan saat dibuka. */
+dialog[data-site-drawer] {
+  transition:
+    transform 0.35s cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 0.35s ease;
+}
+dialog[data-site-drawer]::backdrop {
+  background: rgb(0 0 0 / 0.32);
+  backdrop-filter: blur(6px);
+  transition: opacity 0.35s ease;
+}
+@starting-style {
+  dialog[data-site-drawer][open] {
+    transform: translateX(32px);
+    opacity: 0;
+  }
+  dialog[data-site-drawer][open]::backdrop {
+    opacity: 0;
+  }
+}
+
+/* ---------------------------------------------------------------- artikel
+
+   Isi artikel hasil render Markdown. Ritme baca ala DESIGN.md: body 17px/1.47,
+   judul 600 dengan tracking rapat, satu warna link. */
+.article-body {
+  font-size: 17px;
+  line-height: 1.6;
+  letter-spacing: -0.022em;
+  color: var(--color-ink);
+}
+.article-body > * + * {
+  margin-top: 1.1em;
+}
+.article-body h2 {
+  margin-top: 2em;
+  font-size: 28px;
+  line-height: 1.14;
+  font-weight: 600;
+  letter-spacing: -0.015em;
+}
+.article-body h3 {
+  margin-top: 1.6em;
+  font-size: 21px;
+  line-height: 1.19;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+.article-body h4 {
+  margin-top: 1.4em;
+  font-weight: 600;
+}
+.article-body a {
+  color: var(--color-accent);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-decoration-thickness: 1px;
+}
+.article-body strong {
+  font-weight: 600;
+}
+.article-body ul,
+.article-body ol {
+  padding-left: 1.4em;
+}
+.article-body ul {
+  list-style: disc;
+}
+.article-body ol {
+  list-style: decimal;
+}
+.article-body li + li {
+  margin-top: 0.4em;
+}
+.article-body li::marker {
+  color: var(--color-faint);
+}
+.article-body blockquote {
+  border-left: 3px solid var(--color-hairline);
+  padding-left: 1em;
+  color: var(--color-muted);
+}
+.article-body code {
+  border-radius: 6px;
+  background: var(--color-parchment);
+  padding: 0.12em 0.36em;
+  font-size: 0.88em;
+}
+.article-body pre {
+  overflow-x: auto;
+  border-radius: 14px;
+  background: var(--color-tile-3);
+  padding: 18px 20px;
+  color: #f5f5f7;
+  font-size: 14px;
+  line-height: 1.55;
+}
+.article-body pre code {
+  background: none;
+  padding: 0;
+  font-size: inherit;
+}
+.article-body img {
+  border-radius: 14px;
+  max-width: 100%;
+  height: auto;
+}
+.article-body hr {
+  border: 0;
+  border-top: 1px solid var(--color-hairline);
+  margin: 2.4em 0;
+}
+.article-body table {
+  display: block;
+  overflow-x: auto;
+  border-collapse: collapse;
+  font-size: 15px;
+}
+.article-body th,
+.article-body td {
+  border-bottom: 1px solid var(--color-divider);
+  padding: 8px 12px;
+  text-align: left;
+}
+.article-body th {
+  font-weight: 600;
 }

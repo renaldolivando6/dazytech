@@ -10,8 +10,8 @@ export default async function AkunPage() {
   const user = await requireUser({ allowPendingPasswordChange: true });
 
   return (
-    <Page title="Akun" description={`Masuk sebagai ${user.username}.`}>
-      <div className="max-w-md space-y-4">
+    <Page title="Akun" back={{ href: '/admin/', label: 'Portal' }} narrow description={`Masuk sebagai ${user.username}.`}>
+      <div className="space-y-4">
         {user.mustChangePassword && (
           <Alert tone="amber" title="Ganti password dulu">
             Akun ini masih memakai password awal. Ganti dulu sebelum memakai menu admin.

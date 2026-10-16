@@ -6,9 +6,11 @@ import { redirect } from 'next/navigation';
 import { eq, lt } from 'drizzle-orm';
 import { getDb } from '@/lib/db/client';
 import { sessions, users } from '@/lib/db/schema';
+import { accessOf } from '@/lib/users';
+import type { AppKey, Role } from './apps';
 import { SESSION_COOKIE, SESSION_TTL_MS, sessionCookieOptions } from './constants';
 
-export type SessionUser = { id: number; username: string; mustChangePassword: boolean };
+export type SessionUser = { id: number; username: string; mustChangePassword: boolean; role: Role; apps: AppKey[] };
 
 const hashToken = (token: string) => createHash('sha256').update(token).digest('hex');
 
@@ -52,6 +54,7 @@ export const getCurrentUser = cache(async (): Promise<SessionUser | null> => {
       userId: users.id,
       username: users.username,
       mustChangePassword: users.mustChangePassword,
+      role: users.role,
     })
     .from(sessions)
     .innerJoin(users, eq(users.id, sessions.userId))
@@ -70,7 +73,13 @@ export const getCurrentUser = cache(async (): Promise<SessionUser | null> => {
     db.update(sessions).set({ expiresAt: new Date(now + SESSION_TTL_MS) }).where(eq(sessions.id, id)).run();
   }
 
-  return { id: row.userId, username: row.username, mustChangePassword: row.mustChangePassword };
+  return {
+    id: row.userId,
+    username: row.username,
+    mustChangePassword: row.mustChangePassword,
+    role: row.role,
+    apps: accessOf(db, row.userId, row.role),
+  };
 });
 
 export async function destroyCurrentSession(): Promise<void> {
@@ -97,5 +106,19 @@ export async function requireUser(opts: { allowPendingPasswordChange?: boolean }
   const user = await getCurrentUser();
   if (!user) redirect('/admin/login/');
   if (user.mustChangePassword && !opts.allowPendingPasswordChange) redirect('/admin/akun/?wajib=1');
+  return user;
+}
+
+// Penjaga page & action milik satu aplikasi. Tanpa akses -> kembali ke portal,
+// yang menampilkan aplikasi itu sebagai terkunci.
+export async function requireApp(app: AppKey): Promise<SessionUser> {
+  const user = await requireUser();
+  if (!user.apps.includes(app)) redirect(`/admin/?terkunci=${app}`);
+  return user;
+}
+
+export async function requireAdmin(): Promise<SessionUser> {
+  const user = await requireUser();
+  if (user.role !== 'admin') redirect('/admin/');
   return user;
 }

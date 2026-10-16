@@ -11,28 +11,31 @@ import { CompanySwitcher } from './company-switcher';
 import { AdminNav } from './nav';
 
 // Layout hanya untuk tampilan. Pengecekan login & company ada di setiap
-// page/action (requireCompany / requireCompanyForAction) — layout tidak
+// page/action (requireApp / requireCompany / requireCompanyForAction); layout tidak
 // dirender ulang saat pindah halaman, jadi bukan pengaman.
 export default async function PanelLayout({ children }: { children: ReactNode }) {
   const user = await getCurrentUser();
   const company = user ? await getCurrentCompany() : null;
   const ready = user && !user.mustChangePassword;
-  const companies = ready && company ? listCompanies(getDb()).map((c) => ({ id: c.id, name: c.name })) : [];
+  const komisi = ready && user.apps.includes('komisi');
+  const companies = komisi && company ? listCompanies(getDb()).map((c) => ({ id: c.id, name: c.name })) : [];
 
   return (
     <CompanyProvider company={company ? { id: company.id, name: company.name } : null}>
       {/* Nav global: bar hitam tipis 44px (global-nav di DESIGN.md). */}
       <header className="sticky top-0 z-30 bg-black/90 text-[12px] text-white backdrop-blur-xl">
         <div className="mx-auto flex h-11 max-w-[1440px] items-center gap-4 px-4 sm:gap-6 sm:px-8">
-          <Link href="/admin/komisi/" className="flex shrink-0 items-center gap-2 font-semibold">
-            <Image src="/dazytech-logo-white-circle.png" alt="" width={20} height={20} className="rounded-full" />
+          {/* Logo = kembali ke portal (daftar aplikasi). */}
+          <Link href="/admin/" className="flex shrink-0 items-center gap-2 font-semibold" title="Portal">
+            <Image src="/brand/mark-white-64.png" alt="" width={20} height={20} className="rounded-full" />
             <span className="hidden sm:inline">Dazytech</span>
           </Link>
-          {ready && company && (
-            <>
-              <CompanySwitcher current={{ id: company.id, name: company.name }} companies={companies} />
-              <AdminNav />
-            </>
+          {ready && (
+            <AdminNav
+              companySwitcher={
+                komisi && company ? <CompanySwitcher current={{ id: company.id, name: company.name }} companies={companies} /> : undefined
+              }
+            />
           )}
           {user && (
             <div className="ml-auto flex shrink-0 items-center gap-4 text-white/70">

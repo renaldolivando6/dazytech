@@ -26,6 +26,7 @@ export default async function MasterPage({ searchParams }: { searchParams: Promi
   return (
     <Page
       title="Master Tarif"
+      back={{ href: '/admin/', label: 'Portal' }}
       description={`${company.name} · Perubahan tarif berlaku untuk perhitungan berikutnya; perhitungan yang sudah disimpan memakai snapshot tarif dan tidak berubah.`}
     >
       {unmatched.length > 0 && (
@@ -33,7 +34,7 @@ export default async function MasterPage({ searchParams }: { searchParams: Promi
           <ul className="space-y-0.5">
             {unmatched.map((u) => (
               <li key={`${u.category}|${u.unit}`}>
-                {u.category} / {u.unit} — {u.lines} baris belum dikomisikan.{' '}
+                {u.category} / {u.unit}: {u.lines} baris belum dikomisikan.{' '}
                 <Link
                   href={`/admin/komisi/master/?code=${encodeURIComponent(u.category)}&unit=${encodeURIComponent(u.unit)}`}
                   className="underline"

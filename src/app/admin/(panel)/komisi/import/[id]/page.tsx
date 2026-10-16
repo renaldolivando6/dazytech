@@ -1,7 +1,6 @@
 import type { Metadata } from 'next';
-import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { Badge, EmptyRow, Page, Panel, Table, Tabs, Td, Th, buttonClass } from '@/components/admin/ui';
+import { Badge, EmptyRow, Page, Panel, Table, Tabs, Td, Th } from '@/components/admin/ui';
 import { requireCompany } from '@/lib/company';
 import { getDb } from '@/lib/db/client';
 import { formatDateTime } from '@/lib/format';
@@ -40,15 +39,11 @@ export default async function ImportDetailPage({
   return (
     <Page
       title={`Import #${imp.id}`}
+      back={{ href: '/admin/komisi/', label: 'Import & Data' }}
       description={
         <>
           {imp.fileName} · {formatDateTime(imp.createdAt)} · oleh {imp.importedByName ?? '–'}
         </>
-      }
-      actions={
-        <Link href="/admin/komisi/" className={buttonClass('ghost', 'sm')}>
-          ‹ Import & Data
-        </Link>
       }
     >
       <Panel flush>

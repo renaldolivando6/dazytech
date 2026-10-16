@@ -23,6 +23,7 @@ export default async function PerhitunganPage({ searchParams }: { searchParams: 
   return (
     <Page
       title="Perhitungan Komisi"
+      back={{ href: '/admin/', label: 'Portal' }}
       description={`${company.name} · Cutoff tiap tanggal 15 (default ${formatDate(defaultCutoff(today))}). Yang dihitung: faktur s/d tanggal cutoff, sudah lunas, dan belum pernah dikomisikan. Tarif = master tarif saat ini.`}
       actions={
         <form className="flex items-center gap-2">
@@ -67,7 +68,7 @@ export default async function PerhitunganPage({ searchParams }: { searchParams: 
               )}
               {preview.excluded.afterCutoff > 0 && (
                 <Alert>
-                  {preview.excluded.afterCutoff} baris belum dikomisikan bertanggal setelah {formatDate(cutoff)} — masuk periode
+                  {preview.excluded.afterCutoff} baris belum dikomisikan bertanggal setelah {formatDate(cutoff)}, masuk periode
                   berikutnya.
                 </Alert>
               )}

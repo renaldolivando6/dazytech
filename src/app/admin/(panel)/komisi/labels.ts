@@ -8,7 +8,7 @@ export const ROW_STATUS: Record<RowStatus, { label: string; tone: Tone; hint: st
   updated: { label: 'Diperbarui', tone: 'blue', hint: 'Sudah ada & belum dikomisikan; datanya berubah (mis. jadi lunas).' },
   duplicate: { label: 'Duplikat', tone: 'gray', hint: 'Sudah ada dari import sebelumnya, tidak berubah. Dilewati.' },
   locked: { label: 'Sudah dikomisikan', tone: 'indigo', hint: 'Duplikat dari baris yang sudah dihitung komisinya. Dilewati.' },
-  conflict: { label: 'Konflik', tone: 'amber', hint: 'Sudah dikomisikan tapi data di file berbeda. Tidak diubah — cek manual.' },
+  conflict: { label: 'Konflik', tone: 'amber', hint: 'Sudah dikomisikan tapi data di file berbeda. Tidak diubah, cek manual.' },
   error: { label: 'Error', tone: 'red', hint: 'Baris tidak valid. Dilewati.' },
 };
 

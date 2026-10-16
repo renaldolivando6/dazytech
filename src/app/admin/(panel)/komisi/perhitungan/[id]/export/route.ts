@@ -10,6 +10,7 @@ import { getRun } from '@/lib/komisi/runs';
 export async function GET(_req: Request, { params }: { params: Promise<{ id: string }> }) {
   const user = await getCurrentUser();
   if (!user || user.mustChangePassword) return new NextResponse('Unauthorized', { status: 401 });
+  if (!user.apps.includes('komisi')) return new NextResponse('Forbidden', { status: 403 });
   const company = await getCurrentCompany();
   if (!company) return new NextResponse('Pilih company dulu', { status: 409 });
 
