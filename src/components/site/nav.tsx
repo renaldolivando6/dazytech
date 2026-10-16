@@ -77,8 +77,11 @@ export function SiteNav({ locale, copy, waText }: { locale: Locale; copy: SiteCo
               </Link>
             )}
           </div>
+          {/* prefetch mati: jarang diklik, dan prefetch-nya memuat payload halaman
+              bahasa lain (±26 KB) di setiap kunjungan. */}
           <Link
             href={copy.switchTo.href}
+            prefetch={false}
             hrefLang={copy.switchTo.short.toLowerCase()}
             title={copy.switchTo.label}
             className="ml-auto rounded-md px-1.5 py-1 text-[12px] font-semibold text-white/75 transition-colors hover:text-white lg:ml-0"
@@ -116,7 +119,7 @@ export function SiteNav({ locale, copy, waText }: { locale: Locale; copy: SiteCo
       >
         <div className="flex min-h-full flex-col px-8 pb-10 pt-1">
           <div className="flex h-12 items-center justify-between">
-            <Link href={copy.switchTo.href} hrefLang={copy.switchTo.short.toLowerCase()} onClick={closeMenu} className="text-[13px] text-accent hover:underline">
+            <Link href={copy.switchTo.href} prefetch={false} hrefLang={copy.switchTo.short.toLowerCase()} onClick={closeMenu} className="text-[13px] text-accent hover:underline">
               {copy.switchTo.label}
             </Link>
             <button type="button" onClick={closeMenu} aria-label={copy.closeMenu} className="-mr-3 grid size-11 place-items-center text-muted hover:text-ink">

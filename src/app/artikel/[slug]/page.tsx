@@ -77,7 +77,7 @@ export default async function ArticlePage({ params }: Props) {
               {' · '}
               {readingMinutes(article.content)} menit baca
             </p>
-            <h1 className="mt-3 text-[34px] font-semibold leading-[1.08] tracking-[-0.03em] sm:text-[48px]">{article.title}</h1>
+            <h1 className="mt-3 text-balance text-[34px] font-semibold leading-[1.08] tracking-[-0.03em] sm:text-[48px]">{article.title}</h1>
             {article.excerpt && <p className="mt-4 text-[19px] leading-[1.42] tracking-[-0.02em] text-muted sm:text-[21px]">{article.excerpt}</p>}
           </header>
 

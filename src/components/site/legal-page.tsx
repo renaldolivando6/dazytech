@@ -140,7 +140,7 @@ export function LegalPage({ locale, kind }: { locale: Locale; kind: LegalKind })
 
             <p className="mt-10 text-[15px] text-muted">
               {labels.seeAlso}:{' '}
-              <Link href={legalHref(locale, other)} className="text-accent hover:underline">
+              <Link href={legalHref(locale, other)} className="text-accent underline decoration-accent/40 underline-offset-[3px] hover:decoration-accent">
                 {docs[other].title} ›
               </Link>
             </p>

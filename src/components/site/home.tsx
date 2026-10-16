@@ -100,7 +100,7 @@ export function HomePage({ locale }: { locale: Locale }) {
               </p>
               <p className="mt-2 pl-6 text-[14px] text-muted">
                 {t.hero.websiteQuestion}{' '}
-                <a href="#layanan" className="text-accent hover:underline">
+                <a href="#layanan" className="text-accent underline decoration-accent/40 underline-offset-[3px] hover:decoration-accent">
                   {t.hero.websiteLink}
                 </a>
               </p>

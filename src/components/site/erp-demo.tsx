@@ -241,7 +241,7 @@ function Mobile({ step }: { step: number }) {
             key={no}
             className={cx(
               'rounded-full px-2.5 py-1 text-[11px] font-semibold tabular-nums transition-colors duration-500',
-              state === 'current' ? 'bg-accent/10 text-accent ring-1 ring-accent' : state === 'done' ? 'bg-parchment text-ink-80' : 'border border-dashed border-black/15 text-faint',
+              state === 'current' ? 'bg-accent/10 text-accent ring-1 ring-accent' : state === 'done' ? 'bg-parchment text-ink-80' : 'border border-dashed border-black/15 text-muted',
             )}
           >
             {no}

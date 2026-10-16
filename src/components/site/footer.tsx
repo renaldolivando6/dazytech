@@ -70,7 +70,7 @@ export function SiteFooter({ locale, copy, nav, waText }: { locale: Locale; copy
             <Link href={legalHref(locale, 'terms')} className="hover:text-ink hover:underline">
               {copy.terms}
             </Link>
-            <Link href={nav.switchTo.href} hrefLang={nav.switchTo.short.toLowerCase()} className="hover:text-ink hover:underline">
+            <Link href={nav.switchTo.href} prefetch={false} hrefLang={nav.switchTo.short.toLowerCase()} className="hover:text-ink hover:underline">
               {nav.switchTo.label}
             </Link>
           </p>

@@ -112,7 +112,7 @@ export function LeadForm({ locale, copy, waText, privacyHref }: { locale: Locale
         {copy.note}
         <br />
         {copy.privacyNote}{' '}
-        <Link href={privacyHref} className="text-accent hover:underline">
+        <Link href={privacyHref} className="text-accent underline decoration-accent/40 underline-offset-[3px] hover:decoration-accent">
           {copy.privacyLink}
         </Link>
       </p>
