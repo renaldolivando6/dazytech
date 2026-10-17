@@ -36,6 +36,8 @@
   --color-tile: #272729;
   --color-tile-2: #2a2a2c;
   --color-tile-3: #252527;
+  /* Latar menu samping, sama dengan flyout nav Apple. */
+  --color-night: #161617;
   /* Warna status sistem Apple — hanya untuk titik indikator kecil. */
   --color-status-green: #34c759;
   --color-status-orange: #ff9f0a;

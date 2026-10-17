@@ -33,6 +33,15 @@ export const id = {
     allArticles: 'Semua artikel ›',
     whatsapp: 'Chat WhatsApp',
     switchTo: { href: '/en/', short: 'EN', label: 'English' },
+    // Produk lain milik Dazytech di menu samping. href null = belum rilis, tampil "Segera hadir".
+    products: {
+      title: 'Produk Dazytech',
+      soon: 'Segera hadir',
+      items: [
+        { name: 'BuatCV', description: 'Buat CV gratis dengan format Harvard yang ramah ATS.', href: 'https://buatcv.dazytech.web.id/' },
+        { name: 'OTP Nusantara', description: '', href: null },
+      ],
+    },
   },
 
   // Teks pembuka chat WhatsApp per jalur, supaya chat yang masuk bisa dibedakan.

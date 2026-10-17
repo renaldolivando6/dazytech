@@ -31,6 +31,14 @@ export const en: SiteCopy = {
     allArticles: 'All articles ›',
     whatsapp: 'Chat on WhatsApp',
     switchTo: { href: '/', short: 'ID', label: 'Bahasa Indonesia' },
+    products: {
+      title: 'Dazytech products',
+      soon: 'Coming soon',
+      items: [
+        { name: 'BuatCV', description: 'Free CV builder with an ATS-friendly Harvard format (in Indonesian).', href: 'https://buatcv.dazytech.web.id/' },
+        { name: 'OTP Nusantara', description: '', href: null },
+      ],
+    },
   },
 
   wa: {

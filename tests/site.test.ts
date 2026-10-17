@@ -19,6 +19,7 @@ function strings(value: unknown, path = ''): [string, string][] {
 describe('terjemahan situs', () => {
   it('id dan en punya jumlah isi yang sama', () => {
     expect(en.nav.links.map((l) => l.href)).toEqual(id.nav.links.map((l) => l.href));
+    expect(en.nav.products.items.map((p) => [p.name, p.href])).toEqual(id.nav.products.items.map((p) => [p.name, p.href]));
     expect(en.showcase.items.map((i) => i.key)).toEqual(id.showcase.items.map((i) => i.key));
     expect(en.websites.concepts.map((c) => c.key)).toEqual(id.websites.concepts.map((c) => c.key));
     expect(en.faq.items).toHaveLength(id.faq.items.length);
