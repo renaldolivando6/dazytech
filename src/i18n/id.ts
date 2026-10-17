@@ -33,13 +33,15 @@ export const id = {
     allArticles: 'Semua artikel ›',
     whatsapp: 'Chat WhatsApp',
     switchTo: { href: '/en/', short: 'EN', label: 'English' },
-    // Produk lain milik Dazytech di menu samping. href null = belum rilis, tampil "Segera hadir".
+    // Produk Dazytech dan proyek kolaborasi (Dazytech bukan pemiliknya, mis. OTP Nusantara)
+    // di menu samping. href null = belum rilis, tampil "Segera hadir".
     products: {
-      title: 'Produk Dazytech',
+      title: 'Produk & kolaborasi',
       soon: 'Segera hadir',
       items: [
         { name: 'BuatCV', description: 'Buat CV gratis dengan format Harvard yang ramah ATS.', href: 'https://buatcv.dazytech.web.id/' },
-        { name: 'OTP Nusantara', description: '', href: null },
+        { name: 'OSRM API', description: 'API rute, jarak, dan waktu tempuh untuk wilayah Indonesia.', href: 'https://osrm.dazytech.web.id/' },
+        { name: 'OTP Nusantara', description: 'Proyek kolaborasi', href: null },
       ],
     },
   },

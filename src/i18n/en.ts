@@ -32,11 +32,12 @@ export const en: SiteCopy = {
     whatsapp: 'Chat on WhatsApp',
     switchTo: { href: '/', short: 'ID', label: 'Bahasa Indonesia' },
     products: {
-      title: 'Dazytech products',
+      title: 'Products & collaborations',
       soon: 'Coming soon',
       items: [
         { name: 'BuatCV', description: 'Free CV builder with an ATS-friendly Harvard format (in Indonesian).', href: 'https://buatcv.dazytech.web.id/' },
-        { name: 'OTP Nusantara', description: '', href: null },
+        { name: 'OSRM API', description: 'Routing API for Indonesia: routes, distances, and travel times.', href: 'https://osrm.dazytech.web.id/' },
+        { name: 'OTP Nusantara', description: 'Collaboration project', href: null },
       ],
     },
   },

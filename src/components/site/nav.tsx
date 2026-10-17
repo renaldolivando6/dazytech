@@ -10,7 +10,7 @@ type LatestArticle = { slug: string; title: string; publishedAt: string | null }
 
 // Nav global (bar hitam tipis, DESIGN.md). Desktop: tautan langsung + tombol menu;
 // HP: tombol menu saja. Menu samping berisi navigasi, artikel terbaru (kalau sudah
-// ada yang terbit; daftar diambil saat halaman dibuka), dan produk Dazytech.
+// ada yang terbit; daftar diambil saat halaman dibuka), serta produk & kolaborasi.
 //
 // Juga mencatat klik tombol WhatsApp: setiap <a data-cta="..."> di halaman
 // dikirim ke /api/track/ (tanpa data pribadi) supaya minat ERP vs website terukur.
@@ -190,9 +190,12 @@ export function SiteNav({ locale, copy, waText }: { locale: Locale; copy: SiteCo
                       </span>
                     </a>
                   ) : (
-                    <div className="flex items-baseline justify-between gap-4 py-2.5">
-                      <span className="text-[14px] font-medium leading-[1.35] text-white/60">{p.name}</span>
-                      <span className="shrink-0 text-[12px] text-faint">{copy.products.soon}</span>
+                    <div className="flex items-start justify-between gap-4 py-2.5">
+                      <span>
+                        <span className="block text-[14px] font-medium leading-[1.35] text-white/60">{p.name}</span>
+                        <span className="mt-0.5 block text-[13px] leading-[1.4] text-faint">{p.description}</span>
+                      </span>
+                      <span className="shrink-0 pt-px text-[12px] text-faint">{copy.products.soon}</span>
                     </div>
                   )}
                 </li>
