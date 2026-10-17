@@ -4,6 +4,7 @@ import { MOCKUPS } from '@/components/site/mockups';
 import { en } from '@/i18n/en';
 import { id } from '@/i18n/id';
 import { LEGAL, legalHref } from '@/i18n/legal';
+import { EXTRAS, PACKAGES, PRICING, extraPrice, formatIdr, getExtra, getPackage, packageRenewal, pricingHref, startingPrice } from '@/i18n/pricing';
 import { leads } from '@/lib/db/schema';
 import { leadSchemaFor } from '@/lib/leads';
 import { interestSince, isCtaKey, recordClick, trackAllowed } from '@/lib/tracking';
@@ -31,8 +32,42 @@ describe('terjemahan situs', () => {
   });
 
   it('tanpa em dash (aturan tulisan di CLAUDE.md)', () => {
-    const offenders = [...strings(id, 'id'), ...strings(en, 'en'), ...strings(LEGAL, 'legal')].filter(([, v]) => v.includes('—'));
+    const offenders = [...strings(id, 'id'), ...strings(en, 'en'), ...strings(LEGAL, 'legal'), ...strings(PRICING, 'pricing')].filter(([, v]) => v.includes('—'));
     expect(offenders).toEqual([]);
+  });
+
+  it('paket & harga: setiap paket dan tambahan punya teks dengan bentuk yang sama di kedua bahasa', () => {
+    for (const locale of ['id', 'en'] as const) {
+      const p = PRICING[locale];
+      for (const pkg of PACKAGES) {
+        const c = p.packages[pkg.key];
+        expect(c.specs, `${locale}.${pkg.key}.specs`).toHaveLength(p.categories[pkg.category].specLabels.length);
+        expect(c.features.length, `${locale}.${pkg.key}.features`).toBe(PRICING.id.packages[pkg.key].features.length);
+        for (const addon of pkg.addons) expect(EXTRAS.map((e) => e.key)).toContain(addon);
+      }
+      expect(Object.keys(p.extras).sort()).toEqual(EXTRAS.map((e) => e.key).sort());
+    }
+    const shape = (locale: 'id' | 'en') => {
+      const p = PRICING[locale];
+      return [p.promises.length, p.faq.items.length, p.notes.length, p.localNav.links.map((l) => l.href), Object.values(p.categories).map((c) => c.id)];
+    };
+    expect(shape('en')).toEqual(shape('id'));
+    // Tautan sub-nav menunjuk ke bagian yang benar-benar ada di halaman.
+    const ids = [...Object.values(PRICING.id.categories).map((c) => c.id), PRICING.id.extrasSection.id, PRICING.id.renewalSection.id, PRICING.id.faq.id];
+    expect(PRICING.id.localNav.links.map((l) => l.href.slice(1)).sort()).toEqual(ids.sort());
+  });
+
+  it('paket & harga: tautan, format rupiah, dan harga mulai', () => {
+    expect(id.nav.pricing.href).toBe(pricingHref('id'));
+    expect(en.nav.pricing.href).toBe(pricingHref('en'));
+    expect(formatIdr('id', 1_799_000)).toBe('Rp1.799.000');
+    expect(formatIdr('en', 1_799_000)).toBe('Rp1,799,000');
+    expect(startingPrice('website')).toBe(Math.min(...PACKAGES.filter((p) => p.category === 'website').map((p) => p.price!)));
+    // ERP tanpa harga tetap tidak ikut dihitung sebagai "mulai".
+    expect(Number.isFinite(startingPrice('app'))).toBe(true);
+    expect(packageRenewal('id', getPackage('appBasic'))).toBe('Perpanjangan Rp1.500.000/tahun atau Rp150.000/bulan');
+    expect(extraPrice('en', getExtra('androidNative'))).toBe('From Rp999,000');
+    expect(extraPrice('id', getExtra('bugfix'))).toBe('Gratis');
   });
 
   it('kebijakan privasi & syarat layanan: bagian dan bentuk isi sama di kedua bahasa', () => {

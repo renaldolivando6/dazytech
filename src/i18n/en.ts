@@ -10,7 +10,7 @@ export const en: SiteCopy = {
   meta: {
     title: 'Custom ERP & Business Application Development in Jakarta | Dazytech Solutions',
     description:
-      'Jakarta software house building web-based ERP and business applications around the way your company works. Company profile websites from Rp500,000.',
+      'Jakarta software house building web-based ERP and business applications around the way your company works. Websites from Rp499,000.',
   },
 
   nav: {
@@ -21,6 +21,7 @@ export const en: SiteCopy = {
       { href: '#proses', label: 'How we work' },
       { href: '#faq', label: 'FAQ' },
     ],
+    pricing: { href: '/en/pricing/', label: 'Pricing' },
     cta: 'Contact us',
     articles: 'Articles',
     openMenu: 'Open menu',
@@ -44,7 +45,7 @@ export const en: SiteCopy = {
 
   wa: {
     erp: "Hi Dazytech, I'd like to discuss an ERP / business application project.",
-    website: "Hi Dazytech, I'm interested in a company profile website.",
+    website: "Hi Dazytech, I'm interested in a website.",
     general: "Hi Dazytech, I'd like a consultation.",
   },
 
@@ -56,8 +57,8 @@ export const en: SiteCopy = {
     primary: 'Chat on WhatsApp',
     secondary: 'See ERP workflows',
     proof: 'Hands-on experience building end-to-end web ERP in a corporate environment.',
-    websiteQuestion: 'Need a company profile website?',
-    websiteLink: 'See website services ›',
+    websiteQuestion: 'Need a website?',
+    websiteLink: 'See website packages ›',
     modelLabel: 'The Dazytech mascot in 3D',
   },
 
@@ -78,23 +79,23 @@ export const en: SiteCopy = {
   services: {
     title: 'Services & pricing',
     erp: {
-      tag: 'Core expertise',
+      tag: 'Flagship service',
       name: 'ERP & business applications',
-      price: 'Priced by scope',
-      description: 'Connect sales, stock, and finance to cut re-entry and time spent on recaps.',
-      items: ['Sales, purchasing, stock & warehouse', 'Finance, HR & payroll', 'Accurate, API & WhatsApp integration', 'Migration from legacy desktop software'],
-      note: 'Priced from the modules and integrations you need, agreed before work starts.',
-      cta: 'Chat on WhatsApp',
+      prefix: 'From',
+      bonus: 'Free initial consultation, no obligation',
+      description: 'Orders, stock, and finance in one system. No more re-entering data in Excel or manual recaps at month end.',
+      items: ['Warehouse stock always matches sales', 'Finance and payroll reports without manual recaps', 'Field teams enter data from their phones', 'Automatic notifications on WhatsApp'],
+      note: 'A full ERP is priced per module. It can connect to the accounting software you already use (such as Accurate) and replace older software in stages.',
+      cta: 'Free consultation on WhatsApp',
+      packages: 'See application packages ›',
     },
     website: {
-      name: 'Company profile website',
+      name: 'Business & portfolio websites',
       prefix: 'From',
-      price: 'Rp500,000',
-      description: 'Have a website of your own. Show your services, location, and contact details in one link that is easy to share.',
-      items: ['Responsive on phone & desktop', 'WhatsApp button & Google Maps', 'Basic SEO'],
-      scope: [],
-      scopeNote: 'Pages, revisions, domain, and hosting are discussed during the consultation.',
-      cta: 'Ask about websites',
+      bonus: 'Free domain + hosting for the first year',
+      description: 'Prospects find your business, see your services and location, then chat with you on WhatsApp. Available as a portfolio, landing page, company profile, or product catalog.',
+      items: ['Domain registered in your name, not ours', 'Second-year cost from {renewal}, stated up front', 'Bugs in our code fixed for free while the renewal is active'],
+      cta: 'See all packages',
       secondary: 'See example websites ›',
     },
   },
@@ -193,8 +194,8 @@ export const en: SiteCopy = {
         a: 'Pricing depends on the modules and integrations you need. Scope, cost estimate, and schedule are discussed before development starts, so you know the number before you decide.',
       },
       {
-        q: 'What is included in a company profile website from Rp500,000?',
-        a: 'The base package covers a responsive layout for phone and desktop, a WhatsApp button, Google Maps, and basic SEO. Number of pages, revisions, domain, and hosting are explained during the consultation.',
+        q: 'What is included in the website packages?',
+        a: 'Every website package includes first-year domain, hosting, and SSL, a layout for phone and desktop, a WhatsApp button, and basic SEO. Pages, revisions, and renewal cost differ per package and are listed on the Packages & pricing page.',
       },
       {
         q: 'How long does it take?',
@@ -236,7 +237,7 @@ export const en: SiteCopy = {
       service: 'What do you need?',
       services: [
         { value: 'ERP & aplikasi bisnis', label: 'ERP & business applications' },
-        { value: 'Website company profile', label: 'Company profile website' },
+        { value: 'Website company profile', label: 'Website' },
         { value: 'Integrasi / migrasi sistem lama', label: 'Integration / legacy migration' },
         { value: 'Lainnya', label: 'Something else' },
       ],

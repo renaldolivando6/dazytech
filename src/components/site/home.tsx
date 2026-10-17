@@ -1,6 +1,8 @@
-import { Check, Plus } from 'lucide-react';
+import { Check, Gift, Plus } from 'lucide-react';
+import Link from 'next/link';
 import { getCopy, type Locale } from '@/i18n';
 import { legalHref } from '@/i18n/legal';
+import { formatIdrShort, pricingHref, startingPrice, startingRenewal } from '@/i18n/pricing';
 import { ErpFlowCard, HIGHLIGHTS } from './cards';
 import { CONTACT, whatsappUrl } from './content';
 import { SiteFooter } from './footer';
@@ -28,6 +30,16 @@ const primaryButton =
   'inline-block rounded-full bg-accent px-6 py-3 text-[17px] text-white transition-[background-color,transform] hover:bg-accent-hover active:scale-95';
 const secondaryButton =
   'inline-block rounded-full border border-accent px-6 py-3 text-[17px] text-accent transition-[background-color,transform] hover:bg-accent/5 active:scale-95';
+
+// Yang gratis di setiap jalur, ditonjolkan di bawah harga (sama dengan kartu di /harga/).
+function ServiceBonus({ text }: { text: string }) {
+  return (
+    <p className="mt-3 flex w-fit items-center gap-2 rounded-[10px] bg-parchment px-3 py-2 text-[14px] font-semibold leading-[1.3] text-ink">
+      <Gift className="size-4 shrink-0" strokeWidth={1.8} aria-hidden />
+      {text}
+    </p>
+  );
+}
 
 export function HomePage({ locale }: { locale: Locale }) {
   const t = getCopy(locale);
@@ -100,9 +112,9 @@ export function HomePage({ locale }: { locale: Locale }) {
               </p>
               <p className="mt-2 pl-6 text-[14px] text-muted">
                 {t.hero.websiteQuestion}{' '}
-                <a href="#layanan" className="text-accent underline decoration-accent/40 underline-offset-[3px] hover:decoration-accent">
+                <Link href={`${pricingHref(locale)}#website`} className="text-accent underline decoration-accent/40 underline-offset-[3px] hover:decoration-accent">
                   {t.hero.websiteLink}
-                </a>
+                </Link>
               </p>
             </div>
             <div className="mx-auto w-full max-w-[480px] lg:max-w-none">
@@ -129,13 +141,21 @@ export function HomePage({ locale }: { locale: Locale }) {
             <div className="reveal max-w-[720px]">
               <h2 className={sectionTitle}>{t.services.title}</h2>
             </div>
+            {/* Dua kartu berpola sama (judul, harga mulai, yang gratis, manfaat, tombol) supaya
+                mudah dibandingkan. ERP tetap utama: label, kolom lebih lebar, tombol terisi.
+                Kartu website diisi jaminan (domain milik klien, biaya tahun kedua, bug gratis)
+                yang menjawab keraguan saat membeli website dari vendor baru. */}
             <div className="mt-12 grid grid-cols-1 gap-5 lg:grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)]">
               <article className="reveal flex flex-col rounded-[22px] border border-black/[0.08] bg-white p-7 sm:p-9">
                 <span className="w-fit rounded-full bg-black/[0.06] px-3 py-1 text-[12px] font-semibold text-ink-80">{t.services.erp.tag}</span>
-                <h3 className="mt-5 text-[28px] font-semibold leading-[1.14] tracking-[-0.02em]">{t.services.erp.name}</h3>
-                <p className="mt-1 text-[17px] font-semibold text-ink-80">{t.services.erp.price}</p>
+                <h3 className="mt-4 text-[24px] font-semibold leading-[1.17] tracking-[-0.02em]">{t.services.erp.name}</h3>
+                <p className="mt-3">
+                  <span className="block text-[14px] text-muted">{t.services.erp.prefix}</span>
+                  <span className="text-[28px] font-semibold leading-[1.14] tracking-[-0.02em]">{formatIdrShort(locale, startingPrice('app'))}</span>
+                </p>
+                <ServiceBonus text={t.services.erp.bonus} />
                 <p className="mt-4 text-[17px] leading-[1.47] tracking-[-0.022em] text-muted">{t.services.erp.description}</p>
-                <ul className="mt-6 grid gap-x-6 gap-y-2.5 sm:grid-cols-2">
+                <ul className="mt-5 grid gap-x-6 gap-y-2.5 sm:grid-cols-2">
                   {t.services.erp.items.map((it) => (
                     <li key={it} className="flex items-start gap-2.5 text-[15px] leading-[1.4] text-ink-80">
                       <Check className="mt-0.5 size-4 shrink-0 text-muted" strokeWidth={2.4} aria-hidden />
@@ -144,35 +164,38 @@ export function HomePage({ locale }: { locale: Locale }) {
                   ))}
                 </ul>
                 <p className="mt-6 border-t border-divider pt-5 text-[14px] leading-[1.45] text-muted">{t.services.erp.note}</p>
-                <div className="mt-auto pt-7">
+                <div className="mt-auto flex flex-col items-start gap-4 pt-7 sm:flex-row sm:items-center sm:gap-6">
                   <a href={whatsappUrl(t.wa.erp)} data-cta="wa_erp" target="_blank" rel="noopener noreferrer" className={primaryButton}>
                     {t.services.erp.cta}
                   </a>
+                  <Link href={`${pricingHref(locale)}#aplikasi`} className="text-[15px] text-accent hover:underline">
+                    {t.services.erp.packages}
+                  </Link>
                 </div>
               </article>
 
               <article className="reveal flex flex-col rounded-[22px] border border-black/[0.08] bg-white p-7 sm:p-9">
-                <h3 className="text-[21px] font-semibold leading-[1.19] tracking-[-0.01em]">{t.services.website.name}</h3>
-                <p className="mt-4">
+                {/* Pengganti tinggi label kartu kiri: judul & harga kedua kartu sejajar di desktop. */}
+                <span aria-hidden className="hidden h-[26px] lg:block" />
+                <h3 className="text-[24px] font-semibold leading-[1.17] tracking-[-0.02em] lg:mt-4">{t.services.website.name}</h3>
+                <p className="mt-3">
                   <span className="block text-[14px] text-muted">{t.services.website.prefix}</span>
-                  <span className="text-[28px] font-semibold leading-[1.14] tracking-[-0.02em]">{t.services.website.price}</span>
+                  <span className="text-[28px] font-semibold leading-[1.14] tracking-[-0.02em]">{formatIdrShort(locale, startingPrice('website'))}</span>
                 </p>
+                <ServiceBonus text={t.services.website.bonus} />
                 <p className="mt-4 text-[17px] leading-[1.47] tracking-[-0.022em] text-muted">{t.services.website.description}</p>
-                <ul className="mt-6 space-y-2.5">
-                  {[...t.services.website.items, ...t.services.website.scope].map((it) => (
+                <ul className="mt-5 space-y-2.5">
+                  {t.services.website.items.map((it) => (
                     <li key={it} className="flex items-start gap-2.5 text-[15px] leading-[1.4] text-ink-80">
                       <Check className="mt-0.5 size-4 shrink-0 text-muted" strokeWidth={2.4} aria-hidden />
-                      {it}
+                      {it.replace('{renewal}', formatIdrShort(locale, startingRenewal('website')))}
                     </li>
                   ))}
                 </ul>
-                {t.services.website.scope.length === 0 && (
-                  <p className="mt-6 border-t border-divider pt-5 text-[14px] leading-[1.45] text-muted">{t.services.website.scopeNote}</p>
-                )}
                 <div className="mt-auto flex flex-col items-start gap-4 pt-7 sm:flex-row sm:items-center sm:gap-6">
-                  <a href={whatsappUrl(t.wa.website)} data-cta="wa_website" target="_blank" rel="noopener noreferrer" className={secondaryButton}>
+                  <Link href={pricingHref(locale)} className={secondaryButton}>
                     {t.services.website.cta}
-                  </a>
+                  </Link>
                   <a href="#website" className="text-[15px] text-accent hover:underline">
                     {t.services.website.secondary}
                   </a>

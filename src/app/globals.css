@@ -139,6 +139,27 @@ html:has(dialog[data-site-drawer][open]) {
   }
 }
 
+/* Rincian paket & FAQ di /harga/ (<details class="dz-details">): tinggi isi
+   beranimasi saat dibuka di browser yang mendukung ::details-content. Browser
+   lain langsung membuka tanpa animasi. */
+@media (prefers-reduced-motion: no-preference) {
+  @supports (interpolate-size: allow-keywords) {
+    .dz-details {
+      interpolate-size: allow-keywords;
+    }
+    .dz-details::details-content {
+      block-size: 0;
+      overflow-y: clip;
+      transition:
+        block-size 0.3s cubic-bezier(0.22, 1, 0.36, 1),
+        content-visibility 0.3s allow-discrete;
+    }
+    .dz-details[open]::details-content {
+      block-size: auto;
+    }
+  }
+}
+
 /* Menu samping: geser masuk dari kanan saat dibuka. */
 dialog[data-site-drawer] {
   transition:

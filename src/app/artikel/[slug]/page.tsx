@@ -5,6 +5,7 @@ import { whatsappUrl } from '@/components/site/content';
 import { SiteFooter } from '@/components/site/footer';
 import { SiteNav } from '@/components/site/nav';
 import { getCopy } from '@/i18n';
+import { formatIdrShort, pricingHref, startingPrice } from '@/i18n/pricing';
 import { readingMinutes, renderMarkdown } from '@/lib/articles/markdown';
 import { findPublishedArticle } from '@/lib/articles/queries';
 import { getDb } from '@/lib/db/client';
@@ -86,7 +87,12 @@ export default async function ArticlePage({ params }: Props) {
 
           <aside className="mt-16 rounded-[18px] bg-parchment p-8 text-center">
             <p className="text-[21px] font-semibold tracking-[-0.01em]">Butuh sistem atau website untuk bisnis Anda?</p>
-            <p className="mt-2 text-[15px] text-muted">Konsultasi gratis. ERP & aplikasi bisnis sesuai cakupan, website company profile mulai Rp500 ribu.</p>
+            <p className="mt-2 text-[15px] text-muted">
+              Konsultasi gratis. ERP & aplikasi bisnis sesuai cakupan, website mulai {formatIdrShort('id', startingPrice('website'))}.{' '}
+              <Link href={pricingHref('id')} className="text-accent hover:underline">
+                Lihat paket & harga ›
+              </Link>
+            </p>
             <a
               href={whatsappUrl(`Halo Dazytech, saya baru membaca artikel "${article.title}" dan mau konsultasi.`)}
               data-cta="wa_general"

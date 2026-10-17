@@ -13,6 +13,9 @@ modul komisi, artikel) ada di `README.md`.
 - Teks untuk pengunjung dan admin ditulis dalam bahasa Indonesia yang singkat dan
   spesifik. Hindari kata klise seperti "transformasi digital", "solusi inovatif",
   "mulus", "seamless".
+- Poin manfaat untuk pengunjung ditulis sebagai hasil yang dirasakan pemilik usaha
+  ("stok gudang dan penjualan selalu cocok"), bukan nama modul atau istilah teknis.
+  Istilah seperti API, nama software (Accurate), atau "migrasi" cukup di teks catatan.
 - Halaman login `/admin` memakai bahasa Inggris dan tidak menyebut aplikasi
   internal apa saja yang ada (khusus tim internal Dazytech).
 
@@ -31,8 +34,11 @@ modul komisi, artikel) ada di `README.md`.
   saling cocok (mis. SO-2026-0142, stok 146/60/86). Jaga konsistensinya saat mengubah.
 - Positioning: ERP & aplikasi bisnis sebagai keahlian utama, website company profile
   sebagai penawaran kedua. Jangan menyebut pemberi kerja founder sebagai klien Dazytech.
-- Cakupan paket website (`services.website.scope`) hanya diisi dengan penawaran nyata
-  dari pemilik, jangan dikarang.
+- Paket & harga (`/harga/`, EN `/en/pricing/`, plus PDF-nya) isinya di
+  `src/i18n/pricing.ts`: angka di `PACKAGES`/`EXTRAS`, teks dua bahasa di `PRICING`.
+  Kartu layanan beranda dan PDF membaca dari file yang sama. Isinya penawaran yang
+  disetujui pemilik; jangan menambah paket, harga, atau ketentuan (garansi, pembayaran,
+  jadwal) tanpa persetujuan. Tanggal harga tidak ditampilkan di halaman maupun PDF.
 
 ## Desain
 

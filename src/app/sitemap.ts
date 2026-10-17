@@ -1,5 +1,6 @@
 import { MetadataRoute } from 'next';
 import { LEGAL_UPDATED, legalHref } from '@/i18n/legal';
+import { PRICING_UPDATED, pricingHref } from '@/i18n/pricing';
 import { listPublishedArticles } from '@/lib/articles/queries';
 import { getDb } from '@/lib/db/client';
 
@@ -26,6 +27,16 @@ export default function sitemap(): MetadataRoute.Sitemap {
             priority: 0.9,
             alternates: { languages: homeLanguages },
         },
+        ...(() => {
+            const languages = { 'id-ID': `${baseUrl}${pricingHref('id')}`, en: `${baseUrl}${pricingHref('en')}` };
+            return [languages['id-ID'], languages.en].map((url, i) => ({
+                url,
+                lastModified: new Date(PRICING_UPDATED),
+                changeFrequency: 'monthly' as const,
+                priority: i === 0 ? 0.9 : 0.8,
+                alternates: { languages },
+            }));
+        })(),
         ...(['privacy', 'terms'] as const).flatMap((kind) => {
             const languages = { 'id-ID': `${baseUrl}${legalHref('id', kind)}`, en: `${baseUrl}${legalHref('en', kind)}` };
             return [languages['id-ID'], languages.en].map((url) => ({

@@ -3,6 +3,7 @@ import { parseAccurateExcel } from '@/lib/komisi/excel';
 import { commitImport } from '@/lib/komisi/import';
 import { renderCommissionPdf } from '@/lib/komisi/pdf';
 import { createRun, getRun, voidRun } from '@/lib/komisi/runs';
+import { pricingPdfResponse, renderPricingPdf } from '@/lib/pricing-pdf';
 import { buildAccurateWorkbook, memoryDb } from './helpers';
 
 describe('laporan PDF perhitungan komisi', () => {
@@ -29,5 +30,18 @@ describe('laporan PDF perhitungan komisi', () => {
     voidRun(db, { companyId: 1, runId, reason: 'uji batal', userId: null });
     const voided = await renderCommissionPdf(getRun(db, 1, runId)!, 'Pangan');
     expect(voided.subarray(0, 5).toString()).toBe('%PDF-');
+  }, 30_000);
+});
+
+describe('PDF daftar harga', () => {
+  it('menghasilkan PDF valid untuk kedua bahasa', async () => {
+    for (const locale of ['id', 'en'] as const) {
+      const pdf = await renderPricingPdf(locale);
+      expect(pdf.subarray(0, 5).toString()).toBe('%PDF-');
+      expect(pdf.length).toBeGreaterThan(10_000);
+    }
+    const res = await pricingPdfResponse('id');
+    expect(res.headers.get('Content-Type')).toBe('application/pdf');
+    expect(res.headers.get('Content-Disposition')).toContain('paket-harga-dazytech.pdf');
   }, 30_000);
 });

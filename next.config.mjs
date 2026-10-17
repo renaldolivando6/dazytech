@@ -39,6 +39,9 @@ const nextConfig = {
   // tidak ikut ke build standalone dan PDF gagal dengan MODULE_NOT_FOUND.
   outputFileTracingIncludes: {
     '/admin/**/*': ['./node_modules/pdfkit/js/standard-fonts/**/*', './node_modules/pdfkit/js/data/**/*'],
+    // PDF daftar harga (/harga/*.pdf, /en/pricing/*.pdf).
+    '/harga/**/*': ['./node_modules/pdfkit/js/standard-fonts/**/*', './node_modules/pdfkit/js/data/**/*'],
+    '/en/pricing/**/*': ['./node_modules/pdfkit/js/standard-fonts/**/*', './node_modules/pdfkit/js/data/**/*'],
   },
   experimental: {
     serverActions: {

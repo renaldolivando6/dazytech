@@ -71,6 +71,9 @@ export function SiteNav({ locale, copy, waText }: { locale: Locale; copy: SiteCo
                 {l.label}
               </Link>
             ))}
+            <Link href={copy.pricing.href} className="transition-colors hover:text-white">
+              {copy.pricing.label}
+            </Link>
             {hasArticles && (
               <Link href="/artikel/" className="transition-colors hover:text-white">
                 {copy.articles}
@@ -147,6 +150,13 @@ export function SiteNav({ locale, copy, waText }: { locale: Locale; copy: SiteCo
                 {l.label}
               </Link>
             ))}
+            <Link
+              href={copy.pricing.href}
+              onClick={closeMenu}
+              className="py-[7px] text-[17px] font-medium leading-[1.25] tracking-[-0.01em] text-white/85 transition-colors hover:text-white"
+            >
+              {copy.pricing.label}
+            </Link>
           </nav>
 
           {hasArticles && (

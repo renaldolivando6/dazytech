@@ -21,7 +21,7 @@ export const metadata = {
     template: '%s | Dazytech Solutions'
   },
 
-  description: 'Software house Jakarta untuk ERP berbasis web dan aplikasi bisnis yang mengikuti proses kerja perusahaan. Website company profile mulai Rp500 ribu.',
+  description: 'Software house Jakarta untuk ERP berbasis web dan aplikasi bisnis yang mengikuti proses kerja perusahaan. Website mulai Rp499 ribu.',
 
   authors: [{ name: 'Dazytech Solutions' }],
   creator: 'Dazytech Solutions',

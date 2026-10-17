@@ -12,7 +12,7 @@ export const id = {
   meta: {
     title: 'Jasa ERP Custom & Aplikasi Bisnis Jakarta | Dazytech Solutions',
     description:
-      'Software house Jakarta untuk ERP berbasis web dan aplikasi bisnis yang mengikuti proses kerja perusahaan. Website company profile mulai Rp500 ribu.',
+      'Software house Jakarta untuk ERP berbasis web dan aplikasi bisnis yang mengikuti proses kerja perusahaan. Website mulai Rp499 ribu.',
   },
 
   nav: {
@@ -23,6 +23,8 @@ export const id = {
       { href: '#proses', label: 'Cara kerja' },
       { href: '#faq', label: 'FAQ' },
     ],
+    // Halaman Paket & harga (src/i18n/pricing.ts), tampil setelah tautan bagian.
+    pricing: { href: '/harga/', label: 'Harga' },
     cta: 'Konsultasi',
     articles: 'Artikel',
     openMenu: 'Buka menu',
@@ -49,7 +51,7 @@ export const id = {
   // Teks pembuka chat WhatsApp per jalur, supaya chat yang masuk bisa dibedakan.
   wa: {
     erp: 'Halo Dazytech, saya mau diskusi kebutuhan ERP / aplikasi bisnis.',
-    website: 'Halo Dazytech, saya tertarik membuat website company profile.',
+    website: 'Halo Dazytech, saya tertarik membuat website.',
     general: 'Halo Dazytech, saya mau konsultasi.',
   },
 
@@ -61,8 +63,8 @@ export const id = {
     primary: 'Chat WhatsApp',
     secondary: 'Lihat alur ERP',
     proof: 'Berpengalaman mengembangkan ERP berbasis web end-to-end di lingkungan perusahaan.',
-    websiteQuestion: 'Butuh website company profile?',
-    websiteLink: 'Lihat layanan website ›',
+    websiteQuestion: 'Butuh website?',
+    websiteLink: 'Lihat paket website ›',
     modelLabel: 'Maskot Dazytech dalam bentuk 3D',
   },
 
@@ -83,27 +85,27 @@ export const id = {
 
   services: {
     title: 'Layanan & biaya',
+    // Harga "mulai" di kedua kartu diambil dari src/i18n/pricing.ts ({renewal} diisi otomatis).
+    // Poin ditulis sebagai hasil yang dirasakan pemilik usaha, bukan nama modul; istilah
+    // teknis (Accurate, migrasi) cukup di catatan.
     erp: {
-      tag: 'Keahlian utama',
+      tag: 'Layanan unggulan',
       name: 'ERP & aplikasi bisnis',
-      price: 'Biaya sesuai cakupan',
-      description: 'Hubungkan penjualan, stok, dan keuangan untuk mengurangi input ulang dan waktu rekap.',
-      items: ['Penjualan, pembelian, stok & gudang', 'Keuangan, HR & payroll', 'Integrasi Accurate, API & WhatsApp', 'Migrasi dari aplikasi desktop lama'],
-      note: 'Biaya dihitung dari modul dan integrasi yang dibutuhkan, lalu disepakati sebelum pengerjaan dimulai.',
-      cta: 'Chat WhatsApp',
+      prefix: 'Mulai',
+      bonus: 'Konsultasi awal gratis, tanpa kewajiban lanjut',
+      description: 'Pesanan, stok, dan keuangan tercatat di satu sistem. Tidak ada lagi input ulang di Excel atau rekap manual setiap akhir bulan.',
+      items: ['Stok gudang dan penjualan selalu cocok', 'Laporan keuangan dan gaji tanpa rekap manual', 'Tim lapangan input dari HP', 'Notifikasi otomatis lewat WhatsApp'],
+      note: 'ERP lengkap dihitung per modul. Bisa tersambung ke software akuntansi yang sudah Anda pakai (mis. Accurate) dan menggantikan aplikasi lama secara bertahap.',
+      cta: 'Konsultasi gratis via WhatsApp',
+      packages: 'Lihat paket aplikasi ›',
     },
     website: {
-      name: 'Website company profile',
+      name: 'Website bisnis & portfolio',
       prefix: 'Mulai',
-      price: 'Rp500 ribu',
-      description: 'Miliki website sendiri untuk usaha Anda. Tampilkan layanan, lokasi, dan kontak dalam satu tautan yang mudah dibagikan.',
-      items: ['Tampilan responsif di HP & desktop', 'Tombol WhatsApp & Google Maps', 'SEO dasar'],
-      // TODO(pemilik): isi cakupan paket yang benar-benar ditawarkan, mis.
-      // ['Hingga 5 halaman', '2× revisi desain', 'Domain .com & hosting 1 tahun'].
-      // Selama kosong, `scopeNote` yang tampil.
-      scope: [] as string[],
-      scopeNote: 'Rincian halaman, revisi, domain, dan hosting dibahas saat konsultasi.',
-      cta: 'Tanya paket website',
+      bonus: 'Gratis domain + hosting tahun pertama',
+      description: 'Calon pelanggan menemukan usaha Anda, melihat layanan dan lokasi, lalu langsung chat WhatsApp. Tersedia untuk portfolio, landing page, company profile, dan katalog produk.',
+      items: ['Domain atas nama Anda, bukan atas nama kami', 'Biaya tahun kedua mulai {renewal}, tertulis sejak awal', 'Bug dari kode kami diperbaiki gratis selama perpanjangan aktif'],
+      cta: 'Lihat semua paket',
       secondary: 'Lihat contoh website ›',
     },
   },
@@ -203,8 +205,8 @@ export const id = {
         a: 'Biaya ditentukan oleh modul dan integrasi yang dibutuhkan. Cakupan, estimasi biaya, dan jadwal dibahas sebelum pengembangan dimulai, jadi Anda tahu angkanya sebelum memutuskan.',
       },
       {
-        q: 'Apa saja yang termasuk website company profile mulai Rp500 ribu?',
-        a: 'Paket dasar mencakup tampilan responsif di HP dan desktop, tombol WhatsApp, Google Maps, dan SEO dasar. Jumlah halaman, revisi, serta domain dan hosting dijelaskan saat konsultasi sesuai kebutuhan Anda.',
+        q: 'Apa saja yang termasuk paket website?',
+        a: 'Semua paket website sudah termasuk domain, hosting, dan SSL tahun pertama, tampilan untuk HP dan desktop, tombol WhatsApp, dan SEO dasar. Jumlah halaman, revisi, dan biaya perpanjangan berbeda per paket dan tertulis di halaman Paket & harga.',
       },
       {
         q: 'Berapa lama pengerjaannya?',
@@ -247,7 +249,7 @@ export const id = {
       // `value` disimpan apa adanya di tabel leads (selalu bahasa Indonesia).
       services: [
         { value: 'ERP & aplikasi bisnis', label: 'ERP & aplikasi bisnis' },
-        { value: 'Website company profile', label: 'Website company profile' },
+        { value: 'Website company profile', label: 'Website' },
         { value: 'Integrasi / migrasi sistem lama', label: 'Integrasi / migrasi sistem lama' },
         { value: 'Lainnya', label: 'Lainnya' },
       ],

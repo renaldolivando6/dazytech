@@ -30,6 +30,11 @@ export function SiteFooter({ locale, copy, nav, waText }: { locale: Locale; copy
                 </li>
               ))}
               <li>
+                <Link href={nav.pricing.href} className="hover:text-ink hover:underline">
+                  {nav.pricing.label}
+                </Link>
+              </li>
+              <li>
                 <Link href="/artikel/" className="hover:text-ink hover:underline">
                   {copy.articles}
                 </Link>
