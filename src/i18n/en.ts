@@ -38,9 +38,11 @@ export const en: SiteCopy = {
       items: [
         { name: 'BuatCV', description: 'Free CV builder with an ATS-friendly Harvard format (in Indonesian).', href: 'https://buatcv.dazytech.web.id/' },
         { name: 'OSRM API', description: 'Routing API for Indonesia: routes, distances, and travel times.', href: 'https://osrm.dazytech.web.id/' },
-        { name: 'OTP Nusantara', description: 'Collaboration project', href: null },
+        { name: 'Wezy', description: 'Digital wedding invitations (in Indonesian).', href: 'https://wezy.dazytech.web.id/' },
+        { name: 'OTP Nusantara', description: 'Collaboration project', href: 'https://otpnusantara.com/' },
       ],
     },
+    team: 'Team sign-in',
   },
 
   wa: {

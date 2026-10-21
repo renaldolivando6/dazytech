@@ -10,7 +10,8 @@ type LatestArticle = { slug: string; title: string; publishedAt: string | null }
 
 // Nav global (bar hitam tipis, DESIGN.md). Desktop: tautan langsung + tombol menu;
 // HP: tombol menu saja. Menu samping berisi navigasi, artikel terbaru (kalau sudah
-// ada yang terbit; daftar diambil saat halaman dibuka), serta produk & kolaborasi.
+// ada yang terbit; daftar diambil saat halaman dibuka), produk & kolaborasi, serta
+// tombol kecil masuk /admin untuk tim internal.
 //
 // Juga mencatat klik tombol WhatsApp: setiap <a data-cta="..."> di halaman
 // dikirim ke /api/track/ (tanpa data pribadi) supaya minat ERP vs website terukur.
@@ -221,6 +222,18 @@ export function SiteNav({ locale, copy, waText }: { locale: Locale; copy: SiteCo
             className="mt-auto block rounded-full bg-white py-2.5 text-center text-[15px] font-medium text-ink transition-colors hover:bg-white/85 active:scale-[0.98]"
           >
             {copy.whatsapp}
+          </a>
+          {/* <a> biasa: /admin punya layout sendiri, tidak perlu prefetch. */}
+          <a
+            href="/admin/"
+            rel="nofollow"
+            className="mt-3 inline-flex items-center gap-1.5 self-center rounded-full border border-white/15 px-3 py-1 text-[12px] text-white/60 transition-colors hover:border-white/30 hover:text-white"
+          >
+            <svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.2" aria-hidden>
+              <rect x="2.5" y="5.5" width="7" height="5" rx="1" />
+              <path d="M4 5.5V4a2 2 0 0 1 4 0v1.5" />
+            </svg>
+            {copy.team}
           </a>
         </div>
       </dialog>

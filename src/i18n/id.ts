@@ -43,9 +43,12 @@ export const id = {
       items: [
         { name: 'BuatCV', description: 'Buat CV gratis dengan format Harvard yang ramah ATS.', href: 'https://buatcv.dazytech.web.id/' },
         { name: 'OSRM API', description: 'API rute, jarak, dan waktu tempuh untuk wilayah Indonesia.', href: 'https://osrm.dazytech.web.id/' },
-        { name: 'OTP Nusantara', description: 'Proyek kolaborasi', href: null },
+        { name: 'Wezy', description: 'Undangan pernikahan digital.', href: 'https://wezy.dazytech.web.id/' },
+        { name: 'OTP Nusantara', description: 'Proyek kolaborasi', href: 'https://otpnusantara.com/' },
       ],
     },
+    // Tombol kecil di bawah menu samping ke /admin (khusus tim internal).
+    team: 'Masuk tim internal',
   },
 
   // Teks pembuka chat WhatsApp per jalur, supaya chat yang masuk bisa dibedakan.
