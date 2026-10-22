@@ -133,6 +133,26 @@ token warnanya sama dengan `/admin` (`src/app/globals.css`). Ganti warna aksi
   sebagai teks, link `javascript:` ditolak.
 - Form kontak: honeypot + maks 5 kiriman per IP per jam (di memori proses).
 
+## Hadiah Jajo & Eng (wedding gacha)
+
+Halaman pribadi `/jason-jonathan-shella-wedding-gacha-gift/`: roda gacha 7 putaran berisi
+2 voucher Steam Wallet Rp600.000, 3 x Rp100.000, dan 2 ZONK. Tidak diindeks, tidak masuk
+sitemap/robots.txt, dan hanya terbuka dengan PIN 6 angka (cookie per halaman, 90 hari).
+
+- Urutan hasil ditentukan server (`src/lib/gacha/scenario.ts`), tabel `gacha_campaigns` +
+  `gacha_spins`. Kode voucher baru dikirim ke browser setelah putarannya tercatat.
+- **Kode voucher & PIN asli diisi di `/admin/hadiah/`** (khusus admin, juga ada di portal),
+  tidak pernah di git. Format kode `XXXXX-XXXXX-XXXXX`; spasi/huruf kecil dirapikan otomatis.
+  Ganti PIN = semua perangkat harus memasukkan PIN baru.
+- Production menampilkan "lagi disiapin" sampai kode & PIN diisi. Di dev langsung terisi
+  kode dummy dengan **PIN `123456`**.
+- Browser ditutup saat roda berputar: putaran itu diputar ulang saat halaman dibuka lagi,
+  tidak memakai jatah baru.
+- PIN salah dibatasi 5x per IP dan 30x total per 15 menit (di memori proses).
+- Mencoba sampai puas, lalu **Reset putaran** di `/admin/hadiah/` sebelum link dikirim: ketujuh
+  putaran kembali utuh dan perangkat yang sudah memasukkan PIN harus memasukkannya lagi.
+- Tes: `docker exec dazytech-dev npx vitest run tests/gacha.test.ts`.
+
 ## Production
 
 - Server **WEB_LINUX**, `/opt/apps/rere-apps/dazytech`, container `dazytech-app`

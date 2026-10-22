@@ -4,7 +4,8 @@ import type { Locale } from '@/i18n';
 //
 // Tulis sesuai yang benar-benar terjadi di website: form kontak menyimpan IP &
 // jenis browser (lib/leads.ts), klik WhatsApp dicatat tanpa IP (lib/tracking.ts),
-// tidak ada cookie/analytics untuk pengunjung. Kalau itu berubah, ubah juga di sini
+// tidak ada cookie/analytics untuk pengunjung umum (cookie hanya untuk login admin
+// dan akses halaman pribadi ber-PIN, lib/gacha/access.ts). Kalau itu berubah, ubah juga di sini
 // dan perbarui LEGAL_UPDATED. Ketentuan proyek (harga, garansi, kepemilikan kode)
 // sengaja merujuk ke penawaran tertulis, jangan dikarang di sini.
 
@@ -25,7 +26,7 @@ type LegalCopy = {
   };
 } & Record<LegalKind, LegalDoc>;
 
-export const LEGAL_UPDATED = '2026-10-16';
+export const LEGAL_UPDATED = '2026-10-22';
 
 const id: LegalCopy = {
   labels: {
@@ -62,7 +63,7 @@ const id: LegalCopy = {
         id: 'cookie',
         title: 'Cookie dan pelacakan',
         body: [
-          'Website ini tidak memasang cookie untuk pengunjung dan tidak memakai Google Analytics, Meta Pixel, atau iklan pihak ketiga. Cookie hanya dipakai di halaman login internal tim Dazytech.',
+          'Website ini tidak memasang cookie untuk pengunjung umum dan tidak memakai Google Analytics, Meta Pixel, atau iklan pihak ketiga. Cookie hanya dipakai di halaman login internal tim Dazytech dan di halaman pribadi yang dibuka dengan PIN, untuk mengingat bahwa PIN sudah benar. Halaman pribadi itu juga menyimpan pengaturan suara dan getar di browser Anda sendiri.',
         ],
       },
       {
@@ -274,7 +275,7 @@ const en: LegalCopy = {
         id: 'cookie',
         title: 'Cookies and tracking',
         body: [
-          'This website sets no cookies for visitors and does not use Google Analytics, Meta Pixel, or third-party ads. Cookies are only used on the internal login pages for the Dazytech team.',
+          'This website sets no cookies for general visitors and does not use Google Analytics, Meta Pixel, or third-party ads. Cookies are only used on the internal login pages for the Dazytech team and on private PIN-protected pages, to remember that the correct PIN was entered. Those private pages also keep sound and vibration settings in your own browser.',
         ],
       },
       {

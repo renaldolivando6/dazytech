@@ -307,6 +307,42 @@ export const ctaClicks = sqliteTable(
   (t) => [index('cta_clicks_created_idx').on(t.createdAt)],
 );
 
+// ---------------------------------------------------------------- hadiah: gacha
+
+// Halaman hadiah pribadi (lib/gacha). Satu baris per kampanye, kodenya diatur
+// dari /admin/hadiah. Kode voucher & PIN asli hanya ada di database, tidak di git.
+export const gachaCampaigns = sqliteTable('gacha_campaigns', {
+  slug: text('slug').primaryKey(),
+  // 6 angka, sengaja disimpan apa adanya (bukan hash): isinya tanggal lahir yang
+  // harus bisa dilihat & diubah admin. Penjaganya rate limit + cookie HMAC.
+  pin: text('pin').notNull(),
+  // Kunci HMAC cookie akses. Diganti saat reset, jadi semua cookie lama gugur.
+  secret: text('secret').notNull(),
+  createdAt: createdAt(),
+  updatedAt: updatedAt(),
+});
+
+// Satu baris per putaran. Urutan hadiah ditentukan server (lib/gacha/scenario.ts);
+// kode voucher baru dikirim ke browser setelah putarannya terjadi.
+export const gachaSpins = sqliteTable(
+  'gacha_spins',
+  {
+    id: integer('id').primaryKey({ autoIncrement: true }),
+    campaign: text('campaign')
+      .notNull()
+      .references(() => gachaCampaigns.slug, { onDelete: 'cascade' }),
+    spinNo: integer('spin_no').notNull(),
+    prize: text('prize', { enum: ['steam_600k', 'steam_100k', 'zonk'] }).notNull(),
+    // NULL untuk ZONK.
+    code: text('code'),
+    // Terisi saat tombol putar ditekan. Terisi tapi revealed_at kosong = animasinya
+    // belum selesai (browser ditutup); putaran berikutnya memutar ulang yang ini.
+    spunAt: integer('spun_at', { mode: 'timestamp_ms' }),
+    revealedAt: integer('revealed_at', { mode: 'timestamp_ms' }),
+  },
+  (t) => [uniqueIndex('gacha_spins_campaign_spin_uq').on(t.campaign, t.spinNo)],
+);
+
 export type User = typeof users.$inferSelect;
 export type Company = typeof companies.$inferSelect;
 export type KomisiLine = typeof komisiLines.$inferSelect;

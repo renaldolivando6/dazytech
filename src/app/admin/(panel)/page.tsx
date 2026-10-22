@@ -1,5 +1,5 @@
 import { count, eq } from 'drizzle-orm';
-import { ChevronRight, Lock, Newspaper, Percent, Users, type LucideIcon } from 'lucide-react';
+import { ChevronRight, Gift, Lock, Newspaper, Percent, Users, type LucideIcon } from 'lucide-react';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { Alert, buttonClass, cx } from '@/components/admin/ui';
@@ -7,6 +7,8 @@ import { APPS, appName, isAppKey, type AppKey } from '@/lib/auth/apps';
 import { requireUser } from '@/lib/auth/session';
 import { getDb } from '@/lib/db/client';
 import { articles, companies, leads, users } from '@/lib/db/schema';
+import { COUPLE } from '@/lib/gacha/config';
+import { adminSummary } from '@/lib/gacha/service';
 
 export const metadata: Metadata = { title: 'Portal' };
 
@@ -101,19 +103,37 @@ export default async function PortalPage({ searchParams }: { searchParams: Promi
       </div>
 
       {user.role === 'admin' && (
-        <div className="mt-5 flex flex-wrap items-center gap-4 rounded-[18px] border border-black/[0.08] bg-white px-6 py-4">
-          <span className="grid size-10 shrink-0 place-items-center rounded-full bg-black/[0.05] text-ink-80">
-            <Users className="size-5" strokeWidth={1.8} aria-hidden />
-          </span>
-          <div className="min-w-0 flex-1">
-            <p className="text-[15px] font-semibold">Pengguna & akses</p>
-            <p className="text-[13px] text-muted">{userCount} akun · atur siapa boleh membuka aplikasi apa.</p>
-          </div>
-          <Link href="/admin/pengguna/" className={buttonClass('secondary', 'sm')}>
-            Kelola
-          </Link>
-        </div>
+        <>
+          <AdminLink icon={Users} title="Pengguna & akses" hint={`${userCount} akun · atur siapa boleh membuka aplikasi apa.`} href="/admin/pengguna/" />
+          <AdminLink icon={Gift} title={`Hadiah ${COUPLE.groom.nick} & ${COUPLE.bride.nick}`} hint={giftHint()} href="/admin/hadiah/" />
+        </>
       )}
     </main>
+  );
+}
+
+// Progres hadiah nikahan (lib/gacha), hanya untuk admin.
+function giftHint(): string {
+  const s = adminSummary(getDb());
+  if (!s.configured) return 'Belum diatur · isi kode voucher dan PIN.';
+  const progress = `${COUPLE.groom.nick} sudah putar ${s.spun}/${s.total}`;
+  return s.pending ? `${progress} · satu putaran belum selesai dibuka` : progress;
+}
+
+// Baris menu khusus admin di bawah kartu aplikasi.
+function AdminLink({ icon: Icon, title, hint, href }: { icon: LucideIcon; title: string; hint: string; href: string }) {
+  return (
+    <div className="mt-5 flex flex-wrap items-center gap-4 rounded-[18px] border border-black/[0.08] bg-white px-6 py-4">
+      <span className="grid size-10 shrink-0 place-items-center rounded-full bg-black/[0.05] text-ink-80">
+        <Icon className="size-5" strokeWidth={1.8} aria-hidden />
+      </span>
+      <div className="min-w-0 flex-1">
+        <p className="text-[15px] font-semibold">{title}</p>
+        <p className="text-[13px] text-muted">{hint}</p>
+      </div>
+      <Link href={href} className={buttonClass('secondary', 'sm')}>
+        Kelola
+      </Link>
+    </div>
   );
 }
