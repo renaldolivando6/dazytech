@@ -13,10 +13,11 @@ import type { DockSlot } from './reactions';
 
 // Panel bawah stage (DESIGN 4.4, 4.6, 4.9). Satu DOM untuk HP dan desktop;
 // urutan visual diatur CSS (`order`) supaya urutan keyboard tetap: CTA lalu dok.
-//   HP tinggi : legend/caption, status, dok penuh, CTA
-//   compact   : legend/caption, status, [dok mini | CTA]
+//   HP tinggi : caption, status, dok penuh, CTA
+//   compact   : caption, status, [dok mini | CTA]
 //   desktop   : SISA PUTARAN, status, caption, kartu pending, CTA, daftar kantong
-// Kartu pending menggantikan legend + status selama ada putaran yang tertunda.
+// Kartu pending menggantikan caption + status selama ada putaran yang tertunda.
+// Baris caption tetap memakan tempat saat diam supaya tidak ada yang loncat.
 
 export type StagePhase = 'idle' | 'spinning' | 'revealing';
 
@@ -38,25 +39,6 @@ export type StagePanelProps = {
   onOpenPocket(): void;
   announce(msg: string): void;
 };
-
-export function Legend() {
-  return (
-    <span className={`${styles.legend} ${styles.tLegend} ${styles.text2}`}>
-      <span className={styles.legendItem}>
-        <span className={`${styles.swatch} ${styles.swatchReal}`} aria-hidden="true" />
-        {STAGE.legend.real}
-      </span>
-      <span className={styles.legendItem}>
-        <span className={`${styles.swatch} ${styles.swatchPearl}`} aria-hidden="true" />
-        {STAGE.legend.lebay}
-      </span>
-      <span className={styles.legendItem}>
-        <span className={`${styles.swatch} ${styles.swatchZonk}`} aria-hidden="true" />
-        {STAGE.legend.zonk}
-      </span>
-    </span>
-  );
-}
 
 export function StagePanel(p: StagePanelProps) {
   // Animasi masuk hanya dibaca saat mount (boot pertama: stagger, kembali: fade).
@@ -91,10 +73,7 @@ export function StagePanel(p: StagePanelProps) {
         </div>
       ) : (
         <>
-          <div className={`${styles.legendRow} ${e[0].className}`} style={e[0].style} data-show={idle ? 'legend' : 'caption'}>
-            <span className={`${styles.legendLayer} ${styles.hideDesktop}`} inert={!idle}>
-              <Legend />
-            </span>
+          <div className={`${styles.captionRow} ${e[0].className}`} style={e[0].style} data-idle={idle ? '' : undefined}>
             <CaptionChip className={styles.captionLayer} />
           </div>
           <p className={`${styles.statusLine} ${styles.tCallout} ${e[1].className}`} style={e[1].style} aria-hidden="true">

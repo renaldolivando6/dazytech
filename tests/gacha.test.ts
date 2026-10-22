@@ -15,7 +15,8 @@ import {
   verifyAccess,
   viewerState,
 } from '@/lib/gacha/access';
-import { CLOSING_LETTER, COUPLE, GACHA_PATH, GACHA_SLUG, PRIZES, SLICES, TOTAL_SPINS, sliceIndex, type SpinReveal } from '@/lib/gacha/config';
+import { CLOSING_LETTER, COUPLE, GACHA_PATH, GACHA_SLUG, GACHA_URL, PRIZES, SLICES, TOTAL_SPINS, sliceIndex, type SpinReveal } from '@/lib/gacha/config';
+import { qrSvgPath } from '@/lib/gacha/qr';
 import { SCENARIO } from '@/lib/gacha/scenario';
 import {
   DEV_PIN,
@@ -348,9 +349,25 @@ describe('konfigurasi & teks', () => {
     expect(all.filter((s) => s.includes(EM_DASH))).toEqual([]);
 
     // Sumber fitur ini juga (komentar, pesan error, metadata).
-    const dirs = ['src/lib/gacha', 'src/app/jason-jonathan-shella-wedding-gacha-gift', 'src/app/admin/(panel)/hadiah'];
+    const dirs = ['src/lib/gacha', 'src/app/jason-jonathan-shella-wedding-gacha-gift', 'src/app/admin/(panel)/hadiah', 'src/app/admin/(standalone)/hadiah'];
     const files = dirs.flatMap((d) => fs.readdirSync(d, { recursive: true, withFileTypes: true }).filter((f) => f.isFile()).map((f) => path.join(f.parentPath, f.name)));
     expect(files.length).toBeGreaterThan(5);
     expect(files.filter((f) => fs.readFileSync(f, 'utf8').includes(EM_DASH))).toEqual([]);
+  });
+});
+
+describe('QR kartu hadiah', () => {
+  it('mengarah ke halaman hadiah production', () => {
+    expect(GACHA_URL).toBe(`https://dazytech.web.id${GACHA_PATH}`);
+  });
+
+  it('path SVG memuat tiga finder pattern di sudut', () => {
+    const { size, d } = qrSvgPath(GACHA_URL);
+    // Versi 5 (37 modul): quiet zone di screen-card.module.css dihitung dari sini.
+    expect(size).toBe(37);
+    // Baris tepi finder 7 modul, dibatasi separator terang di sebelahnya.
+    expect(d.startsWith('M0 0h7v1h-7z')).toBe(true);
+    expect(d).toContain(`M${size - 7} 0h7v1h-7z`);
+    expect(d).toContain(`M0 ${size - 1}h7v1h-7z`);
   });
 });

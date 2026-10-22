@@ -1,13 +1,12 @@
 'use client';
 
-import { FastForward, Info, Vibrate, VibrateOff, Volume2, VolumeX } from 'lucide-react';
-import type { Ref } from 'react';
+import { FastForward, Vibrate, VibrateOff, Volume2, VolumeX } from 'lucide-react';
 import styles from '../gacha.module.css';
 import { COVER, STAGE } from './copy';
 
-// Bar atas (DESIGN 4.4, 4.6). Cover: tombol suara saja. Stage: nama, lalu Info
-// (diam) yang jadi pill Skip saat roda berputar, getar (kalau didukung), suara.
-// Urutan keyboard: Info, getar, suara (lalu CTA dan dok di panel bawah).
+// Bar atas (DESIGN 4.4, 4.6). Cover: tombol suara saja. Stage: nama, pill Skip
+// saat roda berputar, getar (kalau didukung), suara.
+// Urutan keyboard: Skip, getar, suara (lalu CTA dan dok di panel bawah).
 
 export type TopBarProps = {
   variant: 'cover' | 'stage';
@@ -19,8 +18,6 @@ export type TopBarProps = {
   canVibrate: boolean;
   /** Reduced motion: pill Skip tidak tampil (putaran singkat). */
   reduced: boolean;
-  infoRef?: Ref<HTMLButtonElement>;
-  onInfo(): void;
   onSkip(): void;
   onToggleSound(): void;
   onToggleHaptics(): void;
@@ -37,19 +34,12 @@ export function TopBar(p: TopBarProps) {
       )}
       {stage && <span className={`${styles.topBarEdition} ${styles.tOverline} ${styles.onlyDesktop}`}>{COVER.overline}</span>}
       <div className={styles.topBarActions}>
-        {stage &&
-          (p.spinning ? (
-            !p.reduced && (
-              <button type="button" className={`${styles.pill} ${styles.skipPill}`} onClick={p.onSkip}>
-                <FastForward size={16} strokeWidth={1.75} aria-hidden="true" />
-                {STAGE.skip}
-              </button>
-            )
-          ) : (
-            <button ref={p.infoRef} type="button" className={styles.iconButton} aria-label={STAGE.info} onClick={p.onInfo}>
-              <Info size={22} strokeWidth={1.75} aria-hidden="true" />
-            </button>
-          ))}
+        {stage && p.spinning && !p.reduced && (
+          <button type="button" className={`${styles.pill} ${styles.skipPill}`} onClick={p.onSkip}>
+            <FastForward size={16} strokeWidth={1.75} aria-hidden="true" />
+            {STAGE.skip}
+          </button>
+        )}
         {stage && p.canVibrate && (
           <button
             type="button"

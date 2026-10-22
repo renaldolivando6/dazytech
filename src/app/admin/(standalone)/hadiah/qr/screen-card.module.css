@@ -1,0 +1,106 @@
+/* Kartu versi screenshot (/admin/hadiah/qr/?versi=layar): putih hangat seperti
+   gaun, garis bingkai champagne tipis, sedikit rona blush di belakang ilustrasi.
+   QR cokelat tua di atas putih supaya terbaca kamera maupun pemindai dari galeri.
+   Ukuran tetap 360 x 640 px. */
+
+.stage {
+  display: flex;
+  justify-content: center;
+  overflow-x: auto;
+  padding: 32px 16px 64px;
+}
+
+.shot {
+  --title: #a27e6e;
+  --ink: #5f4d45;
+  --muted: #8f7d73;
+  position: relative;
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 360px;
+  height: 640px;
+  padding: 26px 28px 24px;
+  overflow: hidden;
+  border-radius: 28px;
+  background: #fdfbf8;
+  text-align: center;
+}
+
+/* Bingkai champagne tipis di dalam tepi kartu. */
+.shot::before {
+  content: '';
+  position: absolute;
+  inset: 12px;
+  border: 1px solid #e9ddd0;
+  border-radius: 18px;
+  pointer-events: none;
+}
+
+.happy {
+  font-family: var(--g-font-serif), Georgia, serif;
+  font-style: italic;
+  font-size: 52px;
+  line-height: 1;
+  letter-spacing: -0.01em;
+  color: var(--title);
+}
+
+.names {
+  margin-top: 8px;
+  font-family: var(--g-font-serif), Georgia, serif;
+  font-size: 20px;
+  line-height: 1.2;
+  letter-spacing: 0.08em;
+  color: var(--ink);
+}
+
+.amp {
+  font-style: italic;
+  color: var(--title);
+}
+
+.couple {
+  margin-top: 6px;
+  padding: 4px 24px 0;
+  background: radial-gradient(closest-side, #f7ebe5, rgba(247, 235, 229, 0));
+}
+
+.coupleArt {
+  display: block;
+  width: 180px;
+  height: 206px;
+}
+
+/* Jarak 18 px di atas dan 14 px di bawah = quiet zone +-4 modul (QR 37 modul, 176 px);
+   bagian bawah ilustrasi hanya bayangan lantai yang sangat pucat. */
+.qr {
+  display: block;
+  width: 176px;
+  height: 176px;
+  margin-top: 18px;
+  fill: #3d3430;
+}
+
+.scan {
+  margin-top: 16px;
+  margin-right: -0.28em;
+  font-family: var(--g-font-ui), system-ui, sans-serif;
+  font-size: 9px;
+  font-weight: 600;
+  line-height: 12px;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.from {
+  margin-top: 8px;
+  font-family: var(--g-font-serif), Georgia, serif;
+  font-style: italic;
+  font-size: 15px;
+  line-height: 1.2;
+  color: var(--muted);
+}

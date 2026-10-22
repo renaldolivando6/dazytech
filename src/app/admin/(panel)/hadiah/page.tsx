@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import Link from 'next/link';
 import { Alert, Badge, Page, Panel, Stat, StatStrip, Table, Td, Th, buttonClass, type Tone } from '@/components/admin/ui';
 import { requireAdmin } from '@/lib/auth/session';
 import { getDb } from '@/lib/db/client';
@@ -40,9 +41,14 @@ export default async function HadiahPage() {
       back={{ href: '/admin/', label: 'Portal' }}
       description={`Wedding gacha untuk ${groom.name} (${groom.nick}) dan ${bride.name} (${bride.nick}): 7 putaran dengan urutan hasil yang tetap. Halaman tidak diindeks dan hanya terbuka dengan PIN.`}
       actions={
-        <a href={GACHA_PATH} target="_blank" rel="noopener" className={buttonClass('secondary')}>
-          Buka halaman hadiah
-        </a>
+        <>
+          <Link href="/admin/hadiah/qr/" className={buttonClass('secondary')}>
+            Kartu QR
+          </Link>
+          <a href={GACHA_PATH} target="_blank" rel="noopener" className={buttonClass('secondary')}>
+            Buka halaman hadiah
+          </a>
+        </>
       }
     >
       {!s.configured && (

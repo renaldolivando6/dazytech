@@ -4,6 +4,8 @@
 
 export const GACHA_SLUG = 'jajo-eng';
 export const GACHA_PATH = '/jason-jonathan-shella-wedding-gacha-gift/';
+// Isi QR kartu hadiah: selalu alamat production, juga saat kartunya dibuka dari dev.
+export const GACHA_URL = `https://dazytech.web.id${GACHA_PATH}`;
 
 export const COUPLE = {
   groom: { name: 'Jason Jonathan', nick: 'Jajo' },
@@ -51,16 +53,17 @@ export const PRIZES: Record<PrizeKind, { label: string; valueIdr: number; rarity
 
 export const STEAM_REDEEM_URL = 'https://store.steampowered.com/account/redeemwalletcode';
 
-// Nama pengirim di surat penutup.
-export const FROM_NAME = 'Renaldo';
+// Nama pengirim: tanda tangan surat penutup, footer cover, dan layar "lagi dibungkus".
+export const FROM_NAME = 'Jey - Joshua - Rere';
 
-// Surat penutup, tampil setelah putaran ke-7 dibuka. Satu item = satu paragraf.
+// Surat penutup, tampil setelah putaran ke-7 dibuka. Satu item = satu paragraf;
+// `\n` = ganti baris di dalam paragraf.
 export const CLOSING_LETTER = [
-  'Jo, selamat ya. Akhirnya ada yang resmi ngurusin lu, dan Eng resmi dapet tanggung jawab seumur hidup.',
-  'Emas, kasur, sama tiket Amerika emang nggak pernah ada, sorry. Tapi voucher Steam-nya beneran.',
-  'Pakai buat main bareng Eng, atau main sendiri pas Eng udah tidur.',
-  'Eng, titip Jajo ya. Kalau mabarnya kebablasan, cabut aja wifi-nya.',
-  'Langgeng terus, rukun terus, dan jangan lupa ajak gw mabar.',
+  'Jas Eng Happy wedding kalian berdua!!\nPasangan love hate relationship yang ngomul mulu kalau ketemu :)',
+  'Sorry hadiah nya jajo-sentris ya eng, kalau temen u kan kyknya dah banyak\nWKWKWKW',
+  'Titip jajo ya eng, semoga ga bandel aneh2 lagi dia!',
+  'QOTD: "Lebih baik main Dota daripada main cewe" - Joshua Teguh.',
+  'Have a happy marriage life ya kalian, God Bless!',
 ] as const;
 
 // ---------------------------------------------------------------- kontrak server <-> UI

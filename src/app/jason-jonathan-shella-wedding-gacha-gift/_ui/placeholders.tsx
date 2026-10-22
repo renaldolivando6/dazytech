@@ -1,16 +1,16 @@
 'use client';
 
-import { ExternalLink, X } from 'lucide-react';
+import { ExternalLink } from 'lucide-react';
 import { useEffect, useId, useRef, useState } from 'react';
 import { CLOSING_LETTER, STEAM_REDEEM_URL } from '@/lib/gacha/config';
 import styles from '../gacha.module.css';
 import { CaptionChip } from './caption-chip';
-import { FINAL, FINE_PRINT, INFO, NOT_READY, POCKET, REVEAL } from './copy';
+import { FINAL, NOT_READY, POCKET, REVEAL } from './copy';
 import { formatRp } from './format';
 import { Modal } from './modal';
 import { CopyCode, PocketList } from './pocket-list';
 import { announceFor, chipsFor, copyAriaFor, dockSlots, overlineFor, revealCta, summarize } from './reactions';
-import type { FinalSlotProps, InfoSlotProps, NotReadySlotProps, PocketSlotProps, RevealSlotProps } from './slots';
+import type { FinalSlotProps, NotReadySlotProps, PocketSlotProps, RevealSlotProps } from './slots';
 
 // PLACEHOLDER tahap 2. Versi minimal yang berfungsi supaya alur 7 putaran bisa
 // dites ujung ke ujung. Tahap 3 menggantinya dengan dialog dan layar asli
@@ -122,45 +122,6 @@ export function PlaceholderPocket({ slots, totalIdr, announce, onClose }: Pocket
   );
 }
 
-export function PlaceholderInfo({ onClose }: InfoSlotProps) {
-  const titleId = useId();
-  const titleRef = useRef<HTMLHeadingElement>(null);
-  return (
-    <Modal labelledBy={titleId} onCancel={onClose} initialFocus={titleRef}>
-      <div className={styles.scrim} onClick={onClose} />
-      <div className={`${styles.sheet} ${styles.glassSolid}`}>
-        <div className={styles.sheetBody}>
-          <div className={styles.phHead}>
-            <h2 id={titleId} ref={titleRef} tabIndex={-1} className={styles.tTitle2}>
-              {INFO.title}
-            </h2>
-            <button type="button" className={styles.iconButton} aria-label={POCKET.close} onClick={onClose}>
-              <X size={22} strokeWidth={1.75} aria-hidden="true" />
-            </button>
-          </div>
-          <ol className={`${styles.tBody} ${styles.text2} ${styles.phRules}`}>
-            {INFO.rules.map((r) => (
-              <li key={r}>{r}</li>
-            ))}
-          </ol>
-          <details className={styles.tFootnote}>
-            <summary>{INFO.termsSummary}</summary>
-            <ul className={styles.phRules}>
-              {Object.entries(FINE_PRINT).map(([id, t]) => (
-                <li key={id}>{t}</li>
-              ))}
-            </ul>
-          </details>
-          <p className={`${styles.tFootnote} ${styles.text3}`}>{INFO.footnote}</p>
-          <button type="button" className={styles.cta} onClick={onClose}>
-            {INFO.done}
-          </button>
-        </div>
-      </div>
-    </Modal>
-  );
-}
-
 export function PlaceholderFinal({ revealed, announce }: FinalSlotProps) {
   const sum = summarize(revealed);
   return (
@@ -180,7 +141,6 @@ export function PlaceholderFinal({ revealed, announce }: FinalSlotProps) {
             {para}
           </p>
         ))}
-        <p className={styles.tLetter}>{FINAL.signOff}</p>
         <p className={styles.tSignature}>{FINAL.signature}</p>
       </article>
       <p className={`${styles.tFootnote} ${styles.text3}`}>{FINAL.footnote1}</p>

@@ -5,8 +5,8 @@ import styles from '../gacha.module.css';
 import { COVER } from './copy';
 
 // Panel cover (DESIGN 4.2). Saat layar PIN terbuka panel ini tetap di layout
-// (tidak ada yang loncat) tapi pudar dan inert. Compact: baris *S&K disembunyikan
-// (ada di Info) dan petunjuk suara + footer digabung jadi satu baris.
+// (tidak ada yang loncat) tapi pudar dan inert. Compact: petunjuk suara + footer
+// digabung jadi satu baris.
 
 export function CoverPanel({
   open,
@@ -26,9 +26,6 @@ export function CoverPanel({
         {COVER.names}
       </h1>
       <div className={`${styles.coverBody} ${styles.fxFadeUp}`} style={{ animationDelay: '420ms' }}>
-        <p className={`${styles.tCaption} ${styles.text2}`}>{COVER.party}</p>
-        <p className={`${styles.tBody} ${styles.text2} ${styles.coverLede}`}>{COVER.lede}</p>
-        <p className={`${styles.tFootnote} ${styles.text3} ${styles.hideCompact}`}>{COVER.fine}</p>
         <button ref={ctaRef} type="button" className={`${styles.cta} ${styles.coverCta}`} onClick={onStart}>
           {open ? COVER.ctaOpen : COVER.ctaLocked}
         </button>

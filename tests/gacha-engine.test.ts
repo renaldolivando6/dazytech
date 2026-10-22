@@ -472,7 +472,7 @@ describe('reaksi (DESIGN 15.4, 15.5)', () => {
   });
 
   it('kalimat diam berdasarkan sisa putaran dan hasil terakhir', () => {
-    expect(idleLine([], 7)).toBe('Searah jarum jam, Jo. Rodanya nggak bisa mundur. Biasanya.');
+    expect(idleLine([], 7)).toBe('');
     expect(idleLine(REVEALS.slice(0, 1), 6)).toBe('Masuk kantong. Sisa 6 putaran, gas.');
     expect(idleLine(REVEALS.slice(0, 2), 5)).toBe('Sabar. Hadiah hiburan juga hadiah. Sisa 5 putaran.');
     expect(idleLine(REVEALS.slice(0, 4), 3)).toBe('Eng langsung ngelirik dompet Steam lu. Sisa 3 putaran.');

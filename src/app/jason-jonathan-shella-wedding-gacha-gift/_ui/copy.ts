@@ -2,7 +2,6 @@ import {
   COUPLE,
   FROM_NAME,
   PIN_LENGTH,
-  PRIZES,
   SLICES,
   STEAM_REDEEM_URL,
   TOTAL_SPINS,
@@ -41,9 +40,6 @@ export const META = {
 export const COVER = {
   overline: 'EDISI PENGANTIN · 1 DARI 1',
   names: PAIR,
-  party: `${ENG} bergabung ke party. Status: permanen.`,
-  lede: `Hadiah nikahan, versi gacha. ${TOTAL_SPINS} putaran, semua hadiah di roda bisa keluar*.`,
-  fine: '*S&K berlaku. Terutama yang mutiara.',
   ctaLocked: 'Buka hadiah',
   ctaOpen: 'Mulai',
   soundHint: 'Nyalain suara biar afdol. Di iPhone, matiin mode senyap dulu.',
@@ -79,15 +75,14 @@ export const PIN = {
 export const STAGE = {
   srTitle: `Roda hadiah ${PAIR}`,
   wheelLabel: `Roda ${SLICES.length} potong: ${SLICES.map((s) => s.label).join(', ')}.`,
-  info: 'Cara main',
   soundOff: 'Matiin suara',
   soundOn: 'Nyalain suara',
   hapticsOff: 'Matiin getar',
   hapticsOn: 'Nyalain getar',
   skip: 'Skip',
   hubLabel: 'sisa',
-  legend: { real: 'Steam beneran', lebay: 'Mutiara*: S&K berlaku', zonk: 'ZONK' },
-  legendAll: 'Steam beneran · Mutiara*: S&K berlaku · ZONK',
+  /** Keterangan warna roda, cuma untuk pembaca layar (legend di layar sudah dihapus). */
+  legendAll: 'Biru & emas: Steam beneran · Mutiara: hadiah lain · Hitam: ZONK',
   cta: 'Putar',
   ctaLast: 'Putar terakhir',
   ctaBusy: 'Lagi muter...',
@@ -122,7 +117,8 @@ export const STAGE = {
 
 /** Kalimat status saat diam (DESIGN 15.4), dipilih oleh reactions.idleLine. */
 export const IDLE_LINES = {
-  first: `Searah jarum jam, ${JO}. Rodanya nggak bisa mundur. Biasanya.`,
+  // Sengaja kosong: sebelum putaran pertama tidak ada kalimat status.
+  first: '',
   after100: (n: number) => `Masuk kantong. Sisa ${n} putaran, gas.`,
   after600: (n: number) => `${ENG} langsung ngelirik dompet Steam lu. Sisa ${n} putaran.`,
   afterZonk: (n: number) => `Sabar. Hadiah hiburan juga hadiah. Sisa ${n} putaran.`,
@@ -153,52 +149,21 @@ export const LAND_LINES = {
   voucherVoucher: (land: string) => `Geser dikit, tetep ${land}!`,
 } as const;
 
-/** S&K per potong roda (tap potong, dan daftar di Info). */
+/** S&K per potong roda, tampil saat potong roda di-tap. */
 export const FINE_PRINT: Record<SliceId, string> = {
   s600a: 'Steam Wallet Rp600.000. Asli, ada kodenya.',
   s600b: 'Steam Wallet Rp600.000. Asli, ada kodenya.',
   s100a: 'Steam Wallet Rp100.000. Asli juga, sumpah.',
   s100b: 'Steam Wallet Rp100.000. Asli juga, sumpah.',
-  amerika: 'Tiket ke Amerika*. Kelas imajinasi, bagasi harapan.',
-  emas: 'Emas 200 gram*. Kadarnya 24 karat khayalan.',
-  kingkoil: 'Kasur King Koil*. Empuknya cuma bisa dibayangin.',
-  maldives: 'Honeymoon Maldives*. Sunset termasuk, tiket nggak.',
-  pik: 'Rumah di PIK*. Cicilan ditanggung pemenang.',
-  lambo: 'Lamborghini*. Ada kok, di wallpaper HP.',
+  amerika: 'Tiket ke Amerika. Kelas imajinasi, bagasi harapan.',
+  emas: 'Emas 200 gram. Kadarnya 24 karat khayalan.',
+  kingkoil: 'Kasur King Koil. Empuknya cuma bisa dibayangin.',
+  maldives: 'Honeymoon Maldives. Sunset termasuk, tiket nggak.',
+  pik: 'Rumah di PIK. Cicilan ditanggung pemenang.',
+  lambo: 'Lamborghini. Ada kok, di wallpaper HP.',
   zonka: 'ZONK. Nilainya nol, kenangannya awet.',
   zonkb: 'ZONK. Nilainya nol, kenangannya awet.',
 };
-
-/** Sheet "Cara main" (DESIGN 15.4). Tidak ada yang membocorkan urutan atau kode. */
-export const INFO = {
-  title: 'Cara main',
-  rules: [
-    `Lu punya ${TOTAL_SPINS} putaran. Tekan Putar, roda muter, hasilnya langsung kecatet.`,
-    'Biru & emas itu Steam Wallet beneran. Kodenya muncul langsung dan bisa disalin.',
-    'Mutiara* itu hadiah S&K berlaku. Hitam itu ZONK. Tap potongan roda buat baca S&K-nya.',
-    'HP mati pas roda muter? Santai. Hasilnya udah dicatet, tinggal ditonton ulang.',
-  ],
-  oddsTitle: 'Peluang',
-  oddsHead: ['Hadiah', 'Peluang'],
-  odds: [
-    [PRIZES.steam_600k.label, 'Ada, sumpah'],
-    [PRIZES.steam_100k.label, 'Ada juga'],
-    ['ZONK', 'Ada, sayangnya'],
-    ['Lamborghini dkk*', 'Tergantung restu mertua'],
-    ['Pity', 'Dijamin'],
-  ],
-  termsSummary: 'S&K berlaku*',
-  specsTitle: 'Spesifikasi',
-  specs: [
-    ['Edisi', '1 dari 1'],
-    ['Arah putar', 'Searah jarum jam. Biasanya.'],
-    ['Bahan', 'Aluminium sampanye, enamel, mutiara (S&K berlaku)'],
-    ['Penonton', `${ENG}, 1 orang, permanen`],
-    ['Musik', 'Dimainin browser lu sendiri'],
-  ],
-  footnote: 'Waspada penipuan: panitia nggak pernah minta transfer pulsa.',
-  done: 'Siap',
-} as const;
 
 // ---------------------------------------------------------------- 15.5 reveal
 
@@ -263,8 +228,8 @@ export const ACHIEVEMENTS = {
 
 export const FINAL = {
   overline: `${TOTAL_SPINS} DARI ${TOTAL_SPINS} · BERES`,
-  title: `Ini semua hadiah lu, ${JO}`,
-  lead: `Pada hari ini, ${TOTAL_SPINS} putaran udah dilaksanakan dengan jujur, adil, dan sedikit drama.`,
+  title: 'GAS JAS GACHA ARCANA WKWKWKKW',
+  lead: `Pada hari ini, ${TOTAL_SPINS} putaran sudah dilaksanakan dengan jujur, dan adil.`,
   totalLabel: 'Total Steam Wallet',
   /** Terbilang total, tampil kapital lewat CSS: "satu juta lima ratus ribu rupiah". */
   totalWords: (idr: number) => `${terbilang(idr)} rupiah`,
@@ -273,7 +238,6 @@ export const FINAL = {
   copiedAll: (k: number) => `${k} kode kesalin`,
   redeem: 'Tukerin di Steam',
   letterHeader: `Buat ${PAIR}`,
-  signOff: 'Yang ikut seneng,',
   signature: FROM_NAME,
   signRow: [
     { label: 'PENERIMA', name: JAJO },

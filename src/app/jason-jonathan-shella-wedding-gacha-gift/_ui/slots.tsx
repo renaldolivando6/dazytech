@@ -1,14 +1,14 @@
 import type { ComponentType } from 'react';
 import type { SpinReveal } from '@/lib/gacha/config';
 import type { Choreo } from './engine';
-import { PlaceholderFinal, PlaceholderInfo, PlaceholderNotReady, PlaceholderPocket, PlaceholderReveal } from './placeholders';
+import { PlaceholderFinal, PlaceholderNotReady, PlaceholderPocket, PlaceholderReveal } from './placeholders';
 import type { DockSlot } from './reactions';
 import type { ToastInput } from './toasts';
 
 // Slot dialog dan layar untuk tahap 3. gacha-app.tsx hanya merender komponen
 // lewat SLOTS di bawah, dengan props yang sudah tetap di sini. Tahap 3 cukup
 // membuat komponen aslinya (reveal-dialog.tsx, takeover-dialog.tsx,
-// pocket-dialog.tsx, info-dialog.tsx, final-screen.tsx, not-ready.tsx), lalu
+// pocket-dialog.tsx, final-screen.tsx, not-ready.tsx), lalu
 // mengganti isi SLOTS dan menghapus placeholders.tsx.
 
 /**
@@ -40,10 +40,6 @@ export type PocketSlotProps = {
   onClose(): void;
 };
 
-export type InfoSlotProps = {
-  onClose(): void;
-};
-
 export type FinalSlotProps = {
   /** Semua hasil yang sudah dibuka (urut putaran). */
   revealed: SpinReveal[];
@@ -70,14 +66,12 @@ export const SLOTS: {
   /** 600K: takeover selayar. */
   Takeover: ComponentType<RevealSlotProps>;
   Pocket: ComponentType<PocketSlotProps>;
-  Info: ComponentType<InfoSlotProps>;
   Final: ComponentType<FinalSlotProps>;
   NotReady: ComponentType<NotReadySlotProps>;
 } = {
   RevealSheet: PlaceholderReveal,
   Takeover: PlaceholderReveal,
   Pocket: PlaceholderPocket,
-  Info: PlaceholderInfo,
   Final: PlaceholderFinal,
   NotReady: PlaceholderNotReady,
 };

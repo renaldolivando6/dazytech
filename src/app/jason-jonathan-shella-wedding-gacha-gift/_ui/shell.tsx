@@ -7,7 +7,7 @@ import { STAGE } from './copy';
 import { CoverPanel } from './cover-panel';
 import { PinCard, type PinCardProps } from './pin-card';
 import { Placard, type PlacardHandle } from './placard';
-import { Legend, StagePanel, type StagePanelProps } from './stage-panel';
+import { StagePanel, type StagePanelProps } from './stage-panel';
 import { TopBar, type TopBarProps } from './top-bar';
 import { Wheel, type WheelProps } from './wheel';
 
@@ -45,11 +45,6 @@ export function Shell(p: ShellProps) {
           <Placard ref={p.placardRef} cover={lower === 'cover'} reduced={p.reduced} />
         </div>
         <Wheel {...p.wheel} dim={p.screen === 'pin'} reduced={p.reduced} layoutKey={lower} />
-        {showStage && (
-          <div className={`${styles.legendBelow} ${styles.onlyDesktop}`}>
-            <Legend />
-          </div>
-        )}
       </div>
 
       <div className={styles.lowerPanel} data-lower={lower}>

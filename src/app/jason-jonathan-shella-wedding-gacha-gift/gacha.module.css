@@ -207,12 +207,6 @@
   line-height: 18px;
 }
 
-.tLegend {
-  font-weight: 500;
-  font-size: 12px;
-  line-height: 16px;
-}
-
 .tOverline {
   font-weight: 700;
   font-size: 11px;
@@ -257,6 +251,8 @@
   font-size: 20px;
   line-height: 30px;
   text-wrap: pretty;
+  /* `\n` di CLOSING_LETTER = ganti baris di dalam paragraf. */
+  white-space: pre-line;
 }
 
 .tSignature {
@@ -908,11 +904,6 @@
     line-height: 22px;
   }
 
-  .tLegend {
-    font-size: 13px;
-    line-height: 18px;
-  }
-
   .tOverline {
     font-size: 12px;
     line-height: 16px;
@@ -1328,8 +1319,7 @@
 }
 
 .root[data-finale-dim] .topBar,
-.root[data-finale-dim] .stagePanel,
-.root[data-finale-dim] .legendBelow {
+.root[data-finale-dim] .stagePanel {
   opacity: 0.15;
   transition: opacity 600ms ease;
 }
@@ -1364,10 +1354,6 @@
 
 .coverBody p {
   margin: 0;
-}
-
-.coverLede {
-  max-width: 320px;
 }
 
 .coverCta {
@@ -1625,13 +1611,12 @@
   transition: opacity 200ms ease;
 }
 
-.legendRow {
+.captionRow {
   display: grid;
   height: 24px;
   margin-top: 6px;
 }
 
-.legendLayer,
 .captionLayer {
   grid-area: 1 / 1;
   display: flex;
@@ -1641,43 +1626,8 @@
   transition: opacity 160ms ease;
 }
 
-.legendRow[data-show='legend'] .captionLayer,
-.legendRow[data-show='caption'] .legendLayer {
+.captionRow[data-idle] .captionLayer {
   opacity: 0;
-}
-
-.legend {
-  display: flex;
-  justify-content: center;
-  gap: 12px;
-  white-space: nowrap;
-  font-size: clamp(11px, 3.1vw, 12px);
-}
-
-.legendItem {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-}
-
-.swatch {
-  flex: none;
-  width: 8px;
-  height: 8px;
-  border-radius: 2px;
-}
-
-.swatchReal {
-  background: linear-gradient(135deg, var(--g-gold) 50%, var(--g-blue) 50%);
-}
-
-.swatchPearl {
-  background: var(--g-pearl);
-}
-
-.swatchZonk {
-  background: var(--g-zonk-deep);
-  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.22);
 }
 
 .stagePanel .statusLine {
@@ -2114,7 +2064,7 @@
     top: calc(env(safe-area-inset-top) + 56px);
   }
 
-  .legendRow {
+  .captionRow {
     margin-top: 4px;
   }
 
@@ -2131,13 +2081,6 @@
   .topBarEdition {
     display: block;
     margin-left: 20px;
-  }
-
-  .legendBelow {
-    display: flex;
-    justify-content: center;
-    margin-top: 20px;
-    transition: opacity 600ms ease;
   }
 
   .placardCover {
@@ -2164,10 +2107,6 @@
   .coverBody {
     align-items: flex-start;
     margin-top: 28px;
-  }
-
-  .coverLede {
-    max-width: 380px;
   }
 
   .coverCta {
@@ -2217,7 +2156,7 @@
     color: var(--g-text-2);
   }
 
-  .legendRow {
+  .captionRow {
     order: 2;
     margin-top: 8px;
   }
@@ -2415,14 +2354,6 @@
   gap: 8px;
   min-height: 44px;
   color: var(--g-text);
-}
-
-.phRules {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  margin: 0;
-  padding-left: 20px;
 }
 
 .phScreen {
@@ -2842,7 +2773,6 @@
   .hl,
   .jewelHalo,
   .wheelFrame,
-  .legendLayer,
   .captionLayer,
   .coverPanel,
   .sidePanel {

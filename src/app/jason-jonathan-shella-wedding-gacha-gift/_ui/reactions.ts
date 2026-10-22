@@ -159,11 +159,9 @@ export function sliceTone(idx: number): SliceTone {
   return kind === 'steam_600k' ? 'gold' : kind === 'steam_100k' ? 'blue' : kind === 'zonk' ? 'zonk' : 'pearl';
 }
 
-/** Teks placard mode slice: label kapital, mutiara diberi bintang ("EMAS 200 GRAM*"). */
+/** Teks placard mode slice: label kapital ("EMAS 200 GRAM"). */
 export function placardText(idx: number): string {
-  const s = SLICES[idx];
-  if (!s) return '';
-  return `${s.label.toUpperCase()}${s.kind === 'lebay' ? '*' : ''}`;
+  return SLICES[idx]?.label.toUpperCase() ?? '';
 }
 
 /** Nada sorotan untuk potong tease. */

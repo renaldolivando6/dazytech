@@ -31,7 +31,7 @@ import type { WheelHandle } from './_ui/wheel';
 
 type OpenState = Extract<GachaState, { status: 'open' }>;
 type Screen = 'cover' | 'pin' | 'stage' | 'final' | 'not_ready';
-type DialogId = 'reveal' | 'pocket' | 'info';
+type DialogId = 'reveal' | 'pocket';
 type BootKind = 'first' | 'short';
 
 type AppState = {
@@ -69,7 +69,7 @@ type Action =
   | { type: 'screen'; screen: Screen; boot?: BootKind }
   | { type: 'unlocked'; state: GachaState }
   | { type: 'pinClose' }
-  | { type: 'dialog'; dialog: 'pocket' | 'info' | null }
+  | { type: 'dialog'; dialog: 'pocket' | null }
   | { type: 'revealClosed' }
   | { type: 'revealLanded'; toFinal: boolean }
   | { type: 'hubBoot'; value: number | null }
@@ -264,7 +264,6 @@ function GachaInner({ initialState }: { initialState: GachaState }) {
   const coverCtaRef = useRef<HTMLButtonElement>(null);
   const dockRef = useRef<HTMLButtonElement>(null);
   const dockMiniRef = useRef<HTMLButtonElement>(null);
-  const infoRef = useRef<HTMLButtonElement>(null);
   const toastsRef = useRef<ToastsHandle>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const sparksRef = useRef<ParticleSystem | null>(null);
@@ -563,9 +562,9 @@ function GachaInner({ initialState }: { initialState: GachaState }) {
     }
   };
 
-  const closeDialog = (back: 'dock' | 'info') => {
+  const closePocket = () => {
     dispatch({ type: 'dialog', dialog: null });
-    requestAnimationFrame(() => (back === 'dock' ? focusVisible(dockRef.current, dockMiniRef.current, ctaRef.current) : focusVisible(infoRef.current, ctaRef.current)));
+    requestAnimationFrame(() => focusVisible(dockRef.current, dockMiniRef.current, ctaRef.current));
   };
 
   const resetStageLight = () => {
@@ -650,8 +649,6 @@ function GachaInner({ initialState }: { initialState: GachaState }) {
                 sound,
                 haptics: hapticsOn,
                 canVibrate: vibrate,
-                infoRef,
-                onInfo: () => state.phase === 'idle' && dispatch({ type: 'dialog', dialog: 'info' }),
                 onSkip,
                 onToggleSound,
                 onToggleHaptics,
@@ -735,9 +732,8 @@ function GachaInner({ initialState }: { initialState: GachaState }) {
           <SLOTS.RevealSheet key={`r${revealProps.reveal.spinNo}`} {...revealProps} />
         ))}
       {state.dialog === 'pocket' && (
-        <SLOTS.Pocket slots={derived.slots} totalIdr={derived.totalIdr} announce={announce} onClose={() => closeDialog('dock')} />
+        <SLOTS.Pocket slots={derived.slots} totalIdr={derived.totalIdr} announce={announce} onClose={closePocket} />
       )}
-      {state.dialog === 'info' && <SLOTS.Info onClose={() => closeDialog('info')} />}
 
       <canvas ref={canvasRef} className={styles.fxCanvas} aria-hidden="true" />
       {/* Toast tidak pernah menimpa dialog, kartu PIN, atau hadiah yang sedang terbang. */}

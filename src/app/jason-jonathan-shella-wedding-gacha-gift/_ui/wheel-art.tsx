@@ -41,17 +41,17 @@ type Art = {
 
 const ART: Record<SliceId, Art> = {
   s600a: { material: 'gold', overline: 'STEAM', main: '600K', size: 50, icon: Gamepad2 },
-  amerika: { material: 'pearl', overline: 'TIKET KE*', main: 'Amerika', size: 38, icon: Plane },
+  amerika: { material: 'pearl', overline: 'TIKET KE', main: 'Amerika', size: 38, icon: Plane },
   s100a: { material: 'ice', overline: 'STEAM', main: '100K', size: 50, icon: Gamepad2 },
-  emas: { material: 'pearl', overline: 'EMAS*', main: '200 gram', size: 36, icon: 'goldbar' },
+  emas: { material: 'pearl', overline: 'EMAS', main: '200 gram', size: 36, icon: 'goldbar' },
   zonka: { material: 'zonk', main: 'ZONK', size: 54 },
-  kingkoil: { material: 'pearl', overline: 'KASUR*', main: 'King Koil', size: 36, icon: BedDouble },
+  kingkoil: { material: 'pearl', overline: 'KASUR', main: 'King Koil', size: 36, icon: BedDouble },
   s100b: { material: 'ice', overline: 'STEAM', main: '100K', size: 50, icon: Gamepad2 },
-  maldives: { material: 'pearl', overline: 'HONEYMOON*', overSize: 22, main: 'Maldives', size: 36, icon: TreePalm },
+  maldives: { material: 'pearl', overline: 'HONEYMOON', overSize: 22, main: 'Maldives', size: 36, icon: TreePalm },
   zonkb: { material: 'zonk', main: 'ZONK', size: 54 },
   s600b: { material: 'gold', overline: 'STEAM', main: '600K', size: 50, icon: Gamepad2 },
-  pik: { material: 'pearl', overline: 'RUMAH*', main: 'di PIK', size: 38, icon: House },
-  lambo: { material: 'pearl', overline: 'MOBIL*', main: 'Lambo', size: 40, icon: CarFront },
+  pik: { material: 'pearl', overline: 'RUMAH', main: 'di PIK', size: 38, icon: House },
+  lambo: { material: 'pearl', overline: 'MOBIL', main: 'Lambo', size: 40, icon: CarFront },
 };
 
 const INK = {
